@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Meet Captions Saver",
+  "name": "Meet Captions Logger",
   "version": "1.0",
   "description": "Google Meetの会議中に表示される字幕を保存します",
   "icons": {
