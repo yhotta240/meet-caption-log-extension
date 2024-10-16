@@ -1,0 +1,84 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meet Captions Log</title>
+  <!-- <link rel="stylesheet" href="popup.css"> -->
+  <link rel="stylesheet" href="bootstrap-5.3.0-dist/css/bootstrap.css">
+</head>
+
+<body class="mx-3">
+  <h3 class="my-2">Google Meet 字幕ログ </h3>
+
+  <!-- ステータスの表示 -->
+  <div class="my-3 fw-bold fs-5">
+    <p id="status" class="">現在のステータス: <span id="statusText">会議中</span></p>
+  </div>
+
+  <p class="fw-light ">設定</p>
+
+  <!-- ファイル名の入力 -->
+  <div class="">
+    <label for="fileName">ファイル名:</label>
+    <input type="text" id="fileName" value="caption" placeholder="ファイル名を入力">
+  </div>
+  <hr class="my-2">
+  <!-- ファイル形式の選択 -->
+  <div class="">
+    <label for="fileFormat">ファイル形式：</label>
+    <select id="fileFormat">
+      <option value="txt">.txt</option>
+      <option value="csv">.csv</option>
+    </select>
+  </div>
+  <hr class="my-2">
+  <div>
+    <!-- ダウンロードフォルダパスの選択 -->
+    <!-- <label for="downloadPath">保存先:</label>
+    <p id="folderPathDisplay">C:\Users\ユーザ名\Downloads</p>
+    <button type="button" id="changeFolderButton">変更</button> -->
+  </div>
+
+
+  <div class="">
+    <!-- 先頭に付ける文章の入力 -->
+    <label for="headerText">先頭に付ける文章:</label>
+    <div>
+      <textarea id="headerText" rows="8" cols="50">
+-----------------------------------------------
+{meet開始時刻} - {meet終了時刻}
+{字幕ログ開始時刻} - {字幕ログ終了時刻}
+打ち合わせ
+-----------------------------------------------
+
+      </textarea>
+    </div>
+    <!-- タグの挿入ボタン -->
+    <div class=" my-1">
+      <button type="button" class="btn btn-primary btn-sm" id="insertMeetStart">meet開始時刻</button>
+      <button type="button" class="btn btn-primary btn-sm" id="insertMeetEnd">meet終了時刻</button>
+      <button type="button" class="btn btn-primary btn-sm" id="insertCaptionStart">字幕ログ開始時刻</button>
+      <button type="button" class="btn btn-primary btn-sm" id="insertCaptionEnd">字幕ログ終了時刻</button>
+    </div>
+
+  </div>
+  <hr class="my-2">
+  <div class="text-end ">
+    <!-- 保存ボタン -->
+    <button type="button" class="btn btn-success btn-sm" id="saveButton">保存</button>
+    <!-- リセットボタン -->
+    <button type="button" class="btn btn-secondary btn-sm" id="resetButton">リセット</button>
+  </div>
+  <!-- ログセクション -->
+  <div class="">
+    <h3>ログ</h3>
+    <div id="log" style="border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto;"></div>
+  </div>
+
+  </script>
+  <!-- スクリプトのリンク -->
+  <script src="bootstrap-5.3.0-dist/js/bootstrap.js"></script>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>
