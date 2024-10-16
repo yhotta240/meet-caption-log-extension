@@ -1,10 +1,9 @@
-// テキストエリアにタグを挿入する関数
+
 // イベントリスナーを設定
 document.getElementById('insertMeetStart').addEventListener('click', () => insertTag('{meet開始時刻}'));
 document.getElementById('insertMeetEnd').addEventListener('click', () => insertTag('{meet終了時刻}'));
 document.getElementById('insertCaptionStart').addEventListener('click', () => insertTag('{字幕ログ開始時刻}'));
 document.getElementById('insertCaptionEnd').addEventListener('click', () => insertTag('{字幕ログ終了時刻}'));
-
 // タグを挿入する関数
 function insertTag(tag) {
   const textarea = document.getElementById('headerText');
@@ -20,7 +19,7 @@ function insertTag(tag) {
   textarea.focus(); // フォーカスをテキストエリアに戻す
 }
 
-document.getElementById('resetButton').addEventListener('click', () => resetSettings());
+
 // 設定をリセットする関数
 function resetSettings() {
   const defaultHeaderText =
@@ -30,12 +29,13 @@ function resetSettings() {
     `打ち合わせ\n` +
     `-----------------------------------------------\n\n`;
 
-  document.getElementById('headerText').value = defaultHeaderText; // テキストエリアをデフォルトにリセット
   document.getElementById('fileName').value = 'caption'; // ファイル名をリセット
   document.getElementById('fileFormat').value = 'txt'; // ファイル名をリセット
+  document.getElementById('headerText').value = defaultHeaderText; // テキストエリアをデフォルトにリセット
   saveSettings(); // リセットされた設定を保存
   console.log('設定がリセットされました');
 }
+document.getElementById('resetButton').addEventListener('click', () => resetSettings());
 
 
 // 設定を保存する関数
@@ -56,12 +56,11 @@ function saveSettings() {
     console.log('設定が保存されました:', settings);
   });
 }
-
-// 保存ボタンにイベントリスナーを設定
 document.getElementById('saveButton').addEventListener('click', () => {
   // saveCaptionsToFile(); // ファイルを保存する関数を呼び出す
   saveSettings(); // 設定を保存する関数を呼び出す
 });
+
 
 // 保存された設定を読み込む関数
 function loadSettings() {
@@ -73,6 +72,4 @@ function loadSettings() {
     }
   });
 }
-
-// 初期化時に設定を読み込む
-loadSettings();
+loadSettings(); // 初期化時に設定を読み込む
