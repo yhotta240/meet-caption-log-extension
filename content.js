@@ -33,7 +33,7 @@ const monitorCaptions = () => {
     }
   }
 };
-
+let newCurrentText = ""
 // 字幕のテキストを抽出して配列に追加する関数
 const extractCaptions = (captionsContainer) => {
   const captionDivs = captionsContainer.querySelectorAll('div[jsname="tgaKEf"].iTTPOb.VbkSUe span');
@@ -45,7 +45,7 @@ const extractCaptions = (captionsContainer) => {
   });
 
   // 現在の字幕内容を更新
-  
+
   console.log('new', newText);
 
   console.log('現在の字幕:', currentText);
@@ -54,12 +54,16 @@ const extractCaptions = (captionsContainer) => {
   let commonSubstring = matchCaptions(currentText, newText); // 共通部分を探す
   currentText = currentText.slice(0, currentText.indexOf(commonSubstring)) + newText; // マージ
   console.log('cur', currentText);
-  
-  if (len > 100) { // 100文字以上になった場合に配列にプッシュ
+  tmp = len;
+  if(tmp>len){
+    
+  }
+  if (len > 500) { // 500文字以上になった場合に配列にプッシュ
     captionsData.push(currentText);
     console.log('currentText', currentText);
     console.log('captionsDataにプッシュ', captionsData);
     currentText = '';
+    
   }
 
   arrayText = captionsData[captionsData.length - 1]; // captionsDataから最新のテキスト取得
@@ -78,7 +82,7 @@ const extractCaptions = (captionsContainer) => {
     // }
 
     // 現在のテキストの正規化（共通部分以降を保持）
-    let newCurrentText = currentText.slice(currentText.indexOf(commonArray) + commonArray.length);
+    newCurrentText = currentText.slice(currentText.indexOf(commonArray) + commonArray.length);
     console.log("newCurrentText(正規化後):", newCurrentText);
   } else {
 
@@ -127,40 +131,43 @@ const matchCaptions = (str1, str2) => {
 // };
 
 
-// 字幕の内容をテキストファイルに出力する関数
+//captionsの内容をファイルとして保存する関数
 const saveCaptionsToFile = () => {
-  // フォームからユーザーが入力した情報を取得
-  const fileName = document.getElementById('fileName').value || 'captions';
-  const fileFormat = document.getElementById('fileFormat').value || 'txt';
-  const downloadPath = document.getElementById('downloadPath').value || ''; // ダウンロードパスを取得
-  const headerText = document.getElementById('headerText').value || 
-    `-----------------------------------------------\n` +
-    `2024/10/16(水)20:11 - 2024/10/16(水)20:11\n` +
-    `-----------------------------------------------\n\n`;
+  // chrome.storage.localから設定を取得
+  chrome.storage.local.get('settings', (data) => {
+    if (data.settings) {
+      // 設定からヘッダーテキストを取得
+      const headerText = data.settings.headerText || 
+      `-----------------------------------------------\n` +
+      `{meet開始時刻} - {meet終了時刻}\n` +
+      `{字幕ログ開始時刻} - {字幕ログ終了時刻}\n` +
+      `打ち合わせ\n` +
+      `-----------------------------------------------\n\n`;
 
-  // Blobを作成し、ユーザーが入力したヘッダーを追加
-  const blob = new Blob([headerText + captionsData.join('\n')], { type: 'text/plain' });
+      // 設定からファイル名と形式を取得
+      const fileName = data.settings.fileName || 'captions';
+      const fileFormat = data.settings.fileFormat || 'text/plain';
 
-  // ダウンロード用のリンクを生成
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  
-  // ファイル名と形式を適用し、パスを組み立て
-  a.href = url;
-  a.download = downloadPath ? `${downloadPath}/${fileName}.${fileFormat}` : `${fileName}.${fileFormat}`;
-
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  
-  console.log('字幕がテキストファイルに保存されました');
-  
-  // 字幕データをリセット
-  captionsData = [];
+      // Blobを使ってファイル作成
+      const blob = new Blob([headerText + captionsData.join('\n')], { type: fileFormat });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName; // ダウンロードするファイル名を設定
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      console.log('字幕がテキストファイルに保存されました:', fileName);
+      
+      // 字幕データをリセット
+      captionsData = [];
+    } else {
+      console.log('設定が見つかりませんでした。デフォルトの設定を使用します。');
+    }
+  });
 };
 
-// イベントリスナーで保存ボタンに機能を関連付け
-document.getElementById('saveButton').addEventListener('click', saveCaptionsToFile);
+
 
 // ページのURLが変更されたときに監視する
 const observer = new MutationObserver(() => {
