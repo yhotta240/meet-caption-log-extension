@@ -1,78 +1,112 @@
-<head>
-  <meta charset="UTF-8">
+<head >
+  <meta charset="UTF-8" >
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meet Captions Log</title>
   <!-- <link rel="stylesheet" href="popup.css"> -->
   <link rel="stylesheet" href="bootstrap-5.3.0-dist/css/bootstrap.css">
 </head>
 
-<body class="mx-3">
-  <h3 class="my-2">Google Meet 字幕ログ </h3>
+<body class="container pb-3" style="width: 400;">
+
+  <div class="d-flex  my-2 ">
+
+    <img src="../icons\icon.png" class="my-auto mx-2" alt="message clear button" height="20">
+    <h3 class="my-auto fs-3">Google Meet 字幕ログ</h3>
+    </h3>
+  </div>
 
   <!-- ステータスの表示 -->
-  <div class="my-3 fw-bold fs-5">
-    <p id="status" class="">現在のステータス: <span id="statusText">会議中</span></p>
-  </div>
-
-  <p class="fw-light ">設定</p>
-
-  <!-- ファイル名の入力 -->
-  <div class="">
-    <label for="fileName">ファイル名:</label>
-    <input type="text" id="fileName" value="caption" placeholder="ファイル名を入力">
-  </div>
-  <hr class="my-2">
-  <!-- ファイル形式の選択 -->
-  <div class="">
-    <label for="fileFormat">ファイル形式：</label>
-    <select id="fileFormat">
-      <option value="txt">.txt</option>
-      <option value="csv">.csv</option>
-    </select>
-  </div>
-  <hr class="my-2">
-  <div>
-    <!-- ダウンロードフォルダパスの選択 -->
-    <!-- <label for="downloadPath">保存先:</label>
-    <p id="folderPathDisplay">C:\Users\ユーザ名\Downloads</p>
-    <button type="button" id="changeFolderButton">変更</button> -->
-  </div>
-
-  <div class="">
-    <!-- 先頭に付ける文章の入力 -->
-    <label for="headerText">先頭に付ける文章:</label>
-    <div>
-      <textarea id="headerText" rows="8" cols="50">
------------------------------------------------
-プロジェクトの打ち合わせ
-meet開始時刻    : {meet開始時刻}
-字幕ログ開始時刻: {字幕ログ開始時刻}
-字幕ログ終了時刻: {字幕ログ終了時刻}
------------------------------------------------
-</textarea>
+  <div class="d-flex justify-content-between my-3">
+    <label class="my-auto" for="flexSwitchCheckDefault">字幕ログを有効にする</label>
+    <div class="form-check form-switch form-check-reverse me-2">
+      <input class="form-check-input" type="checkbox" role="switch" id="captionLogLabel">
     </div>
-    <!-- タグの挿入ボタン -->
-    <div class=" my-1">
-      <button type="button" class="btn btn-primary btn-sm" id="insertMeetStart">meet開始時刻</button>
-      <button type="button" class="btn btn-primary btn-sm" id="insertCaptionStart">字幕ログ開始時刻</button>
-      <button type="button" class="btn btn-primary btn-sm" id="insertCaptionEnd">字幕ログ終了時刻</button>
-    </div>
-
   </div>
-  <hr class="my-2">
-  <div class="text-end ">
-    <!-- 保存ボタン -->
-    <button type="button" class="btn btn-success btn-sm" id="saveButton">保存</button>
-    <!-- デフォルトボタン -->
-    <button type="button" class="btn btn-secondary btn-sm" id="resetButton">デフォルト</button>
+
+  <!-- タブ -->
+  <ul class="nav nav-underline mb-3" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" id="settings-tab" data-bs-toggle="tab" href="#settings" role="tab"
+        aria-controls="settings" aria-selected="true">設定</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link" id="api-tab" data-bs-toggle="tab" href="#api" role="tab" aria-controls="api"
+        aria-selected="false">API</a>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="myTabContent">
+    <!-- 設定 -->
+    <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+      <!-- ファイル名の入力 -->
+      <div class="row">
+        <label class="col-4 my-auto" for="fileName">ファイル名:</label>
+        <div class="col-8">
+          <input class="form-control form-control-sm" type="text" id="fileName" value="caption" placeholder="ファイル名を入力">
+        </div>
+      </div>
+      <hr class="my-2">
+      <!-- ファイル形式の選択 -->
+      <div class="row">
+        <label class="col-4 my-auto" for="fileFormat">ファイル形式:</label>
+        <div class="col-8">
+          <select class="form-select form-select-sm" id="fileFormat">
+            <option value="txt">.txt</option>
+            <option value="csv">.csv</option>
+          </select>
+        </div>
+      </div>
+      <hr class="my-2">
+      <div>
+        <!-- ダウンロードフォルダパスの選択 -->
+        <!-- <label for="downloadPath">保存先:</label>
+        <p id="folderPathDisplay">C:\Users\ユーザ名\Downloads</p>
+        <button type="button" id="changeFolderButton">変更</button> -->
+      </div>
+
+      <div class="">
+        <!-- 先頭に付ける文章の入力 -->
+        <label class="my-1" for="headerText">先頭に付ける文章:</label>
+        <div>
+          <textarea id="headerText" rows="8" cols="50">
+    -----------------------------------------------
+    プロジェクトの打ち合わせ
+    meet開始時刻    : {meet開始時刻}
+    字幕ログ開始時刻: {字幕ログ開始時刻}
+    字幕ログ終了時刻: {字幕ログ終了時刻}
+    -----------------------------------------------
+    </textarea>
+        </div>
+        <!-- タグの挿入ボタン -->
+        <div class=" my-2">
+          <button type="button" class="btn btn-primary btn-sm" id="insertMeetStart">meet開始時刻</button>
+          <button type="button" class="btn btn-primary btn-sm" id="insertCaptionStart">字幕ログ開始時刻</button>
+          <button type="button" class="btn btn-primary btn-sm" id="insertCaptionEnd">字幕ログ終了時刻</button>
+        </div>
+
+      </div>
+      <hr class="my-2">
+      <div class="text-end ">
+        <!-- 保存ボタン -->
+        <button type="button" class="btn btn-success btn-sm" id="saveButton">保存</button>
+        <!-- デフォルトボタン -->
+        <button type="button" class="btn btn-secondary btn-sm" id="resetButton">デフォルト</button>
+      </div>
+    </div>
+    <!-- API -->
+    <div class="tab-pane fade" id="api" role="tabpanel" aria-labelledby="api-tab" >
+      <p>APIに関する情報がここに表示されます。</p>
+      <p> Coming Soon</p>
+    </div>
   </div>
   <!-- メッセージ -->
-  
-  <div class="d-flex justify-content-between mb-2 mt-3">
+
+  <div class="d-flex justify-content-between my-3">
     <div class="fw-light ">メッセージ</div>
     <button type="button" class="btn btn-light btn-sm" id="messageClearButton">
       <img src="../icons/list_clear.png" alt="message clear button" height="20">
-    </button>  </div>
+    </button>
+  </div>
 
   <div id="message" style="border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto;"></div>
   </div>
