@@ -38,7 +38,6 @@
     <button type="button" id="changeFolderButton">変更</button> -->
   </div>
 
-
   <div class="">
     <!-- 先頭に付ける文章の入力 -->
     <label for="headerText">先頭に付ける文章:</label>
@@ -46,7 +45,7 @@
       <textarea id="headerText" rows="8" cols="50">
 -----------------------------------------------
 プロジェクトの打ち合わせ
-meet開始時刻   : {meet開始時刻}
+meet開始時刻    : {meet開始時刻}
 字幕ログ開始時刻: {字幕ログ開始時刻}
 字幕ログ終了時刻: {字幕ログ終了時刻}
 -----------------------------------------------
@@ -68,9 +67,14 @@ meet開始時刻   : {meet開始時刻}
     <button type="button" class="btn btn-secondary btn-sm" id="resetButton">デフォルト</button>
   </div>
   <!-- メッセージ -->
-  <div class="">
-    <p class="fw-light ">メッセージ</p>
-    <div id="message" style="border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto;"></div>
+  
+  <div class="d-flex justify-content-between mb-2 mt-3">
+    <div class="fw-light ">メッセージ</div>
+    <button type="button" class="btn btn-light btn-sm" id="messageClearButton">
+      <img src="../icons/list_clear.png" alt="message clear button" height="20">
+    </button>  </div>
+
+  <div id="message" style="border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: auto;"></div>
   </div>
 
   </script>

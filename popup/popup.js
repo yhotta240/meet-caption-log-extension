@@ -21,7 +21,7 @@ function insertTag(tag) {
 const defaultHeaderText =
   `-----------------------------------------------\n` +
   `プロジェクトの打ち合わせ\n` +
-  `meet開始時刻   : {meet開始時刻}\n` +
+  `meet開始時刻    : {meet開始時刻}\n` +
   `字幕ログ開始時刻: {字幕ログ開始時刻}\n` +
   `字幕ログ終了時刻: {字幕ログ終了時刻}\n` +
   `-----------------------------------------------\n\n`;
@@ -67,11 +67,15 @@ document.getElementById('saveButton').addEventListener('click', () => {
 });
 
 
-
+const messageDiv = document.getElementById('message');
 function messageOutput(datetime, message) {
-  const messageDiv = document.getElementById('message');
   messageDiv.innerHTML += '<p class="m-0">' + datetime + ' ' + message + '</p>'; // <p> タグで囲んで新しい行にする
 }
+
+document.getElementById('messageClearButton').addEventListener('click', () => {
+  messageDiv.innerHTML = '<p class="m-0">'+''+'</p>'; // <p> タグで囲んで新しい行にする
+});
+
 
 function dateTime() {
   // 現在の日付と時刻を取得
