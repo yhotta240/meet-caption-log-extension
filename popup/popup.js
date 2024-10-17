@@ -1,4 +1,14 @@
 
+//チェックボックスの状態
+let isLogEnabled = false;
+
+document.getElementById('captionLogLabel').addEventListener('change', (event) => {
+  isLogEnabled = event.target.checked; // チェックボックスの状態を取得
+  chrome.storage.local.set({ isLogEnabled: isLogEnabled }, () => {
+    messageOutput(dateTime(), isLogEnabled ? '字幕ログが有効になりました' : '字幕ログが無効になりました');
+  });
+});
+
 // イベントリスナーを設定
 document.getElementById('insertMeetStart').addEventListener('click', () => insertTag('{meet開始時刻}'));
 document.getElementById('insertCaptionStart').addEventListener('click', () => insertTag('{字幕ログ開始時刻}'));
@@ -38,12 +48,16 @@ document.getElementById('resetButton').addEventListener('click', () => resetSett
 
 // 設定を保存する関数
 function saveSettings(datetime, message) {
+  isLogEnabled = document.getElementById('captionLogLabel').checked;
+  console.log('字幕ログ保存:', isLogEnabled);
+
   const fileName = document.getElementById('fileName').value; // ファイル名を取得
   const fileFormat = document.getElementById('fileFormat').value; // ファイル形式を取得
   let headerText = document.getElementById('headerText').value; // ヘッダーのテキストを取得
 
   // 保存するデータをオブジェクトにまとめる
   const settings = {
+    isLogEnabled: isLogEnabled,
     fileName: fileName,
     fileFormat: fileFormat,
     headerText: headerText,
@@ -73,7 +87,7 @@ function messageOutput(datetime, message) {
 }
 
 document.getElementById('messageClearButton').addEventListener('click', () => {
-  messageDiv.innerHTML = '<p class="m-0">'+''+'</p>'; // <p> タグで囲んで新しい行にする
+  messageDiv.innerHTML = '<p class="m-0">' + '' + '</p>'; // <p> タグで囲んで新しい行にする
 });
 
 
@@ -92,21 +106,21 @@ function dateTime() {
 
 // 保存された設定を読み込む関数
 function loadSettings() {
-
-  chrome.storage.local.get('settings', (data) => {
-    console.log(data.settings);
+  chrome.storage.local.get(['settings', 'isLogEnabled'], (data) => {
     if (data.settings) {
-      console.log(data.settings);
-
-      document.getElementById('fileName').value = data.settings.fileName || 'captions'; // 修正
-      document.getElementById('fileFormat').value = data.settings.fileFormat || 'text/plain'; // 修正
+      // 設定を読み込む
+      document.getElementById('fileName').value = data.settings.fileName || 'captions'; // ファイル名の設定
+      document.getElementById('fileFormat').value = data.settings.fileFormat || 'text/plain'; // ファイル形式の設定
       document.getElementById('headerText').value = data.settings.headerText || defaultHeaderText; // ヘッダーのテキストを設定
       // const messageDiv = document.getElementById('message');
       // messageDiv.innerHTML = '<p class="m-0">' + data.settings.message[0] + ' ' + data.settings.message[1] + '</p>'; // 保存されたログを表示
-    } else {
-
     }
 
+    // logEnabledの値を取得
+    const isLogEnabled = data.isLogEnabled || false; // デフォルトはfalse
+    document.getElementById('captionLogLabel').checked = isLogEnabled; // チェックボックスの状態を設定
+    console.log('字幕ログが有効:', isLogEnabled);
+    messageOutput(dateTime(), isLogEnabled ? '字幕ログは有効になっています' : '字幕ログは無効になっています');
   });
 }
 loadSettings(); // 初期化時に設定を読み込む
