@@ -27,10 +27,11 @@ const checkMeetingStatus = () => {
   }
 };
 
+
 // 字幕ログの有効/無効を確認する関数
 const logEnabled = () => {
   chrome.storage.local.get('isLogEnabled', (data) => {
-    const isLogEnabled = data.isLogEnabled || false; // デフォルトはfalse
+    let isLogEnabled = data.isLogEnabled || false; // デフォルトはfalse
     // console.log(isLogEnabled ? '字幕ログが有効:' : '字幕ログが無効:');
     if (isLogEnabled) { // 字幕ログが有効
       monitorCaptions();

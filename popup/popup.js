@@ -1,5 +1,5 @@
 
-//チェックボックスの状態
+// チェックボックスの状態
 let isLogEnabled = false;
 
 document.getElementById('captionLogLabel').addEventListener('change', (event) => {
