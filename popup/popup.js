@@ -24,7 +24,7 @@ function insertTag(tag) {
 function resetSettings() {
   const defaultHeaderText =
     `-----------------------------------------------\n` +
-    `{meet開始時刻} - {meet終了時刻}\n` +
+    `{meet開始時刻}\n` +
     `{字幕ログ開始時刻} - {字幕ログ終了時刻}\n` +
     `打ち合わせ\n` +
     `-----------------------------------------------\n\n`;
