@@ -4,7 +4,7 @@
   "version": "1.0",
   "description": "Google Meetの会議中に表示される字幕を保存します",
   "icons": {
-    "48": "icon/icon.png"
+    "48": "icons/icon.png"
   },
   "permissions": [
     "storage"
