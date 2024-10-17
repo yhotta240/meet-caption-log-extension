@@ -20,9 +20,10 @@ function insertTag(tag) {
 
 const defaultHeaderText =
   `-----------------------------------------------\n` +
-  `{meet開始時刻}\n` +
-  `{字幕ログ開始時刻} - {字幕ログ終了時刻}\n` +
-  `打ち合わせ\n` +
+  `プロジェクトの打ち合わせ\n` +
+  `meet開始時刻   : {meet開始時刻}\n` +
+  `字幕ログ開始時刻: {字幕ログ開始時刻}\n` +
+  `字幕ログ終了時刻: {字幕ログ終了時刻}\n` +
   `-----------------------------------------------\n\n`;
 
 // 設定をリセットする関数
@@ -30,7 +31,7 @@ function resetSettings() {
   document.getElementById('fileName').value = 'caption'; // ファイル名をリセット
   document.getElementById('fileFormat').value = 'txt'; // ファイル名をリセット
   document.getElementById('headerText').value = defaultHeaderText; // テキストエリアをデフォルトにリセット
-  saveSettings(dateTime(), '設定がリセットされました'); // リセットされた設定を保存
+  // saveSettings(dateTime(), '設定がリセットされました'); // リセットされた設定を保存
 }
 document.getElementById('resetButton').addEventListener('click', () => resetSettings());
 
@@ -39,7 +40,7 @@ document.getElementById('resetButton').addEventListener('click', () => resetSett
 function saveSettings(datetime, message) {
   const fileName = document.getElementById('fileName').value; // ファイル名を取得
   const fileFormat = document.getElementById('fileFormat').value; // ファイル形式を取得
-  const headerText = document.getElementById('headerText').value; // ヘッダーのテキストを取得
+  let headerText = document.getElementById('headerText').value; // ヘッダーのテキストを取得
 
   // 保存するデータをオブジェクトにまとめる
   const settings = {
@@ -49,21 +50,27 @@ function saveSettings(datetime, message) {
     message: [datetime, message],
   };
 
+  // プレースホルダーを実際の値に置き換え
+  headerText = headerText
+    .replace(/{meet開始時刻}/g, dateTime())
+    .replace(/{字幕ログ開始時刻}/g, dateTime())
+    .replace(/{字幕ログ終了時刻}/g, dateTime());
+
   // chrome.storage.localに保存
   chrome.storage.local.set({ settings: settings }, () => {
-    console.log('設定が保存されました:', settings);
-    logOutput(datetime, message);
+    messageOutput(datetime, message);
   });
+
 }
-document.getElementById('saveButton').addEventListener('click', () => { 
-  saveSettings(dateTime(), '設定が保存されました'); 
+document.getElementById('saveButton').addEventListener('click', () => {
+  saveSettings(dateTime(), '設定が保存されました');
 });
 
 
 
-function logOutput(datetime, message) {
-  const logDiv = document.getElementById('log');
-  logDiv.innerHTML += '<p class="m-0">' + datetime + ': ' + message + '</p>'; // <p> タグで囲んで新しい行にする
+function messageOutput(datetime, message) {
+  const messageDiv = document.getElementById('message');
+  messageDiv.innerHTML += '<p class="m-0">' + datetime + ' ' + message + '</p>'; // <p> タグで囲んで新しい行にする
 }
 
 function dateTime() {
@@ -74,25 +81,28 @@ function dateTime() {
   const day = String(now.getDate()).padStart(2, '0');         // 日
   const hours = String(now.getHours()).padStart(2, '0');       // 時
   const minutes = String(now.getMinutes()).padStart(2, '0');   // 分
-  const seconds = String(now.getSeconds()).padStart(2, '0');   // 秒
-  const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  console.log(formattedDateTime);
+  const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
+  // console.log(formattedDateTime);
   return formattedDateTime;
 }
 
 // 保存された設定を読み込む関数
 function loadSettings() {
+
   chrome.storage.local.get('settings', (data) => {
+    console.log(data.settings);
     if (data.settings) {
+      console.log(data.settings);
 
       document.getElementById('fileName').value = data.settings.fileName || 'captions'; // 修正
       document.getElementById('fileFormat').value = data.settings.fileFormat || 'text/plain'; // 修正
       document.getElementById('headerText').value = data.settings.headerText || defaultHeaderText; // ヘッダーのテキストを設定
-      const logDiv = document.getElementById('log');
-      logDiv.innerHTML =  '<p class="m-0">' + data.settings.message[0] + ': ' + data.settings.message[1] + '</p>'; // 保存されたログを表示
-      
-      console.log( data.settings.message);
+      // const messageDiv = document.getElementById('message');
+      // messageDiv.innerHTML = '<p class="m-0">' + data.settings.message[0] + ' ' + data.settings.message[1] + '</p>'; // 保存されたログを表示
+    } else {
+
     }
+
   });
 }
 loadSettings(); // 初期化時に設定を読み込む
