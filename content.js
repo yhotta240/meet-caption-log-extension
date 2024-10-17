@@ -3,7 +3,10 @@ const meetUrlPattern = /https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}/
 
 let captionsData = []; // 字幕の内容を保存する配列
 let currentText = ''; // 現在の字幕内容を保存
-let arrayText = ''
+let arrayText = '';
+let backupText = ''; // バックアップ
+let len = 0;
+let previousLen = -1; // 前のlenの値を保存する
 
 // URLの変更を監視する関数
 const checkMeetingStatus = () => {
@@ -33,7 +36,7 @@ const monitorCaptions = () => {
     }
   }
 };
-let newCurrentText = ""
+
 // 字幕のテキストを抽出して配列に追加する関数
 const extractCaptions = (captionsContainer) => {
   const captionDivs = captionsContainer.querySelectorAll('div[jsname="tgaKEf"].iTTPOb.VbkSUe span');
@@ -47,27 +50,29 @@ const extractCaptions = (captionsContainer) => {
   // 現在の字幕内容を更新
 
   console.log('new', newText);
-
-  console.log('現在の字幕:', currentText);
-  let len = currentText.length
-  console.log('現在の字幕文字数:', len);
   let commonSubstring = matchCaptions(currentText, newText); // 共通部分を探す
   currentText = currentText.slice(0, currentText.indexOf(commonSubstring)) + newText; // マージ
-  console.log('cur', currentText);
-  tmp = len;
-  if(tmp>len){
-    
+  console.log('現在の字幕:', currentText);
+  let len = currentText.length;
+  console.log('現在の字幕文字数:', len);
+  
+  if (len === 0 && previousLen !== 0) { // バックアップ
+    captionsData.push(backupText); 
+    console.log('currentText.lengthが0になったため', backupText);
+    console.log('captionsDataにbackupTextをプッシュ', captionsData);
   }
+  backupText = currentText;
+  previousLen = len;
+
   if (len > 500) { // 500文字以上になった場合に配列にプッシュ
     captionsData.push(currentText);
     console.log('currentText', currentText);
     console.log('captionsDataにプッシュ', captionsData);
     currentText = '';
-    
   }
 
   arrayText = captionsData[captionsData.length - 1]; // captionsDataから最新のテキスト取得
-  console.log("arrayText(取得):", arrayText);
+  // console.log("arrayText(取得):", arrayText);
 
   if (arrayText) {
     let commonArray = matchCaptions(arrayText, currentText); // 共通部分
@@ -82,7 +87,7 @@ const extractCaptions = (captionsContainer) => {
     // }
 
     // 現在のテキストの正規化（共通部分以降を保持）
-    newCurrentText = currentText.slice(currentText.indexOf(commonArray) + commonArray.length);
+    let newCurrentText = currentText.slice(currentText.indexOf(commonArray) + commonArray.length);
     console.log("newCurrentText(正規化後):", newCurrentText);
   } else {
 
@@ -109,40 +114,18 @@ const matchCaptions = (str1, str2) => {
   return commonSubstring;
 };
 
-
-// // 字幕の内容をテキストファイルに出力する関数
-// const saveCaptionsToFile = () => {
-//   // 先頭に付ける文章
-//   const headerText = 
-//   `-----------------------------------------------\n` +
-//   `2024/10/16(水)20:11 - 2024/10/16(水)20:11\n` +
-//   `-----------------------------------------------\n\n`;
-  
-//   const blob = new Blob([headerText + captionsData.join('\n')], { type: 'text/plain' });
-//   const url = URL.createObjectURL(blob);
-//   const a = document.createElement('a');
-//   a.href = url;
-//   a.download = 'captions.txt'; // ダウンロードするファイル名
-//   document.body.appendChild(a);
-//   a.click();
-//   document.body.removeChild(a);
-//   console.log('字幕がテキストファイルに保存されました');
-//   captionsData = []; // 配列をリセット
-// };
-
-
 //captionsの内容をファイルとして保存する関数
 const saveCaptionsToFile = () => {
   // chrome.storage.localから設定を取得
   chrome.storage.local.get('settings', (data) => {
     if (data.settings) {
       // 設定からヘッダーテキストを取得
-      const headerText = data.settings.headerText || 
-      `-----------------------------------------------\n` +
-      `{meet開始時刻} - {meet終了時刻}\n` +
-      `{字幕ログ開始時刻} - {字幕ログ終了時刻}\n` +
-      `打ち合わせ\n` +
-      `-----------------------------------------------\n\n`;
+      const headerText = data.settings.headerText ||
+        `-----------------------------------------------\n` +
+        `{meet開始時刻}\n` +
+        `{字幕ログ開始時刻} - {字幕ログ終了時刻}\n` +
+        `打ち合わせ\n` +
+        `-----------------------------------------------\n\n`;
 
       // 設定からファイル名と形式を取得
       const fileName = data.settings.fileName || 'captions';
@@ -158,7 +141,7 @@ const saveCaptionsToFile = () => {
       a.click();
       document.body.removeChild(a);
       console.log('字幕がテキストファイルに保存されました:', fileName);
-      
+
       // 字幕データをリセット
       captionsData = [];
     } else {
