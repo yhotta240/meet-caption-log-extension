@@ -1,8 +1,7 @@
-chrome.storage.local.get('settings', (data) => {
-  console.log(data.settings);
-});
+
 // 会議中のURLの正規表現
 const meetUrlPattern = /https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}/;
+
 let captionsSaved = false; // 保存が行われたかを記録するフラグ
 let captionsData = []; // 字幕の内容を保存する配列
 let currentText = ''; // 現在の字幕内容を保存
@@ -17,17 +16,26 @@ let captionEndTime;
 // URLの変更を監視する関数
 const checkMeetingStatus = () => {
   const currentUrl = window.location.href;
-  
-  // 会議中のURLであるかをチェック
-  if (meetUrlPattern.test(currentUrl)) {
-    console.log('会議開始');
+
+  if (meetUrlPattern.test(currentUrl)) { // 会議中のURLであるかをチェック
+    // console.log('会議開始');
     if (!meetStartTime) {
       meetStartTime = dateTime();
     }
-    monitorCaptions(); // 字幕の監視を開始
   } else {
-    console.log('会議開始前');
+    // console.log('会議開始前');
   }
+};
+
+// 字幕ログの有効/無効を確認する関数
+const logEnabled = () => {
+  chrome.storage.local.get('isLogEnabled', (data) => {
+    const isLogEnabled = data.isLogEnabled || false; // デフォルトはfalse
+    // console.log(isLogEnabled ? '字幕ログが有効:' : '字幕ログが無効:');
+    if (isLogEnabled) { // 字幕ログが有効
+      monitorCaptions();
+    }
+  });
 };
 
 // 字幕の表示を監視する関数
@@ -54,8 +62,8 @@ const monitorCaptions = () => {
       console.log('captionsDataにcurrentTextをプッシュ', captionsData);
       saveCaptions(); // 字幕をファイルに保存
       currentText = '';
-      captionsSaved = true;
       backupText = '';
+      captionsSaved = true;
     }
   }
 };
@@ -75,7 +83,7 @@ const extractCaptions = (captionsContainer) => {
   // console.log('new', newText);
   let commonSubstring = matchCaptions(currentText, newText); // 共通部分を探す
   currentText = currentText.slice(0, currentText.indexOf(commonSubstring)) + newText; // マージ
-  console.log('現在の字幕:', currentText);
+  // console.log('現在の字幕:', currentText);
   let len = currentText.length;
   console.log('現在の字幕文字数:', len);
 
@@ -115,7 +123,6 @@ const extractCaptions = (captionsContainer) => {
   } else {
 
   }
-  console.log('------------------');
 
 };
 
@@ -140,44 +147,54 @@ const matchCaptions = (str1, str2) => {
 
 const saveCaptions = () => {
   chrome.storage.local.get('settings', (data) => {
+    let fileName, fileFormat, headerText;
+
     if (data.settings) {
       // 設定からファイル名と形式を取得
-      const fileName = data.settings.fileName || 'captions';
-      const fileFormat = data.settings.fileFormat || 'text/plain';
-      // 設定からヘッダーテキストを取得
-      let headerText = data.settings.headerText;
-      console.log('------------------');
-      console.log('meet開始時刻:', meetStartTime);
-      console.log('字幕ログ開始時刻:', captionStartTime);
-      console.log('字幕ログ終了時刻:', captionEndTime);
-      headerText = headerText
-        .replace(/{meet開始時刻}/g, meetStartTime)
-        .replace(/{字幕ログ開始時刻}/g, captionStartTime)
-        .replace(/{字幕ログ終了時刻}/g, captionEndTime);
-      captionStartTime = null;
-      captionStartTime = null;
-      // ファイル作成
-      const blob = new Blob([headerText + captionsData.join('\n')], { type: fileFormat });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName; // ダウンロードするファイル名を設定
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      console.log('字幕がテキストファイルに保存されました:', fileName);
+      fileName = data.settings.fileName;
+      fileFormat = data.settings.fileFormat;
+      headerText = data.settings.headerText;
 
-
-      captionsData = []; // 字幕データをリセット
-
-      console.log('------------------');
     } else {
       console.log('設定が見つかりませんでした。デフォルトの設定を使用します。');
+
+      // デフォルト設定
+      fileName = 'captions';
+      fileFormat = 'text/plain';
+      headerText =
+        `-----------------------------------------------\n` +
+        `プロジェクトの打ち合わせ\n` +
+        `meet開始時刻    : {meet開始時刻}\n` +
+        `字幕ログ開始時刻: {字幕ログ開始時刻}\n` +
+        `字幕ログ終了時刻: {字幕ログ終了時刻}\n` +
+        `-----------------------------------------------\n\n`;
+
     }
+
+    headerText = headerText
+      .replace(/{meet開始時刻}/g, meetStartTime)
+      .replace(/{字幕ログ開始時刻}/g, captionStartTime)
+      .replace(/{字幕ログ終了時刻}/g, captionEndTime);
+
+    captionStartTime = null;
+    captionEndTime = null;
+
+    // ファイル作成
+    const blob = new Blob([headerText + captionsData.join('\n')], { type: fileFormat });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName; // ダウンロードするファイル名を設定
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    console.log('字幕がテキストファイルに保存されました:', fileName);
+    captionsData = []; // 字幕データをリセット
+
+    console.log('------------------');
   });
 };
-
-
 
 const dateTime = () => {
   // 現在の日付と時刻を取得
@@ -194,8 +211,7 @@ const dateTime = () => {
 
 // ページのURLが変更されたときに監視する
 const observer = new MutationObserver(() => {
-  monitorCaptions();
-  // checkMeetingStatus();
+  logEnabled();
 });
 
 // URLの変更を監視するために設定
