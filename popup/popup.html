@@ -1,20 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meet Captions Log</title>
   <!-- <link rel="stylesheet" href="popup.css"> -->
   <link rel="stylesheet" href="bootstrap-5.3.0-dist/css/bootstrap.css">
-  <style>
-    /* パネルの初期状態は閉じた状態（高さ0）にする */
-    #bottomPanel {
-      height: 0;
-      overflow: hidden;
-      transition: height 0.3s ease;
-    }
-  </style>
+  <link rel="stylesheet" href="popup.css">
 </head>
 
-<body class="container pb-3 p-2" style="width: 420; min-height: 750; ">
+<body class="container pb-3 p-2" style="width: 420px; min-height: 750px; ">
 
   <div class="d-flex  my-2 ">
 
@@ -31,11 +27,15 @@
     </div>
   </div>
 
-  <!-- タブ -->
+  <!-- メニュータブ -->
   <ul class="nav nav-underline mb-2 mx-1" id="myTab" role="tablist">
     <li class="nav-item " role="presentation">
       <a class="nav-link active py-1" id="settings-tab" data-bs-toggle="tab" href="#settings" role="tab"
         aria-controls="settings " aria-selected="true">設定</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link py-1" id="description-tab" data-bs-toggle="tab" href="#description" role="tab"
+        aria-controls="description" aria-selected="false">概要</a>
     </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link py-1" id="api-tab" data-bs-toggle="tab" href="#tutorial" role="tab" aria-controls="tutorial"
@@ -44,6 +44,10 @@
     <li class="nav-item" role="presentation">
       <a class="nav-link py-1" id="api-tab" data-bs-toggle="tab" href="#api" role="tab" aria-controls="api"
         aria-selected="false">API</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link py-1" id="info-tab" data-bs-toggle="tab" href="#info" role="tab" aria-controls="info"
+        aria-selected="false">詳細情報</a>
     </li>
   </ul>
 
@@ -99,6 +103,50 @@ meet開始時刻    : {meet開始時刻}
           <button type="button" class="btn btn-secondary btn-sm" id="resetButton">デフォルト</button>
         </div>
       </ul>
+    </div>
+    <!-- 概要 -->
+    <div class="tab-pane fade mt-2 mx-2" id="description" role="tabpanel" style="margin-bottom: 200px;"
+      aria-labelledby="description-tab">
+      <div>
+        <h5>Google Meetの会議中に表示される字幕を保存します</h5>
+        <p>
+          「Meet 字幕ログ」は，Google Meet
+          会議中に表示されるリアルタイム字幕を記録し，簡単にテキストファイルとして保存できる拡張機能です。会議に参加中，字幕のオン・オフで自動的にログを作成し，保存することが可能です。この拡張機能は，特に議事録作成や多言語の会議，講義の記録など様々な場面で役立ちます。
+        </p>
+        <p class="mb-1 fw-bold">インストールするメリット:</p>
+        <ul>
+          <li class="mb-1">
+            議事録の自動作成<br>
+            会議中に表示された字幕をリアルタイムで記録し，自動的にファイルとして保存するので，手動でメモを取る手間が省けます。会議終了後，簡単に議事録やメモを確認することができます。
+          </li>
+          <li class="mb-1">
+            設定の柔軟性<br>
+            字幕ログの保存形式やファイル名，ログの先頭に挿入する文章などを自由に設定可能。
+          </li>
+          <li class="mb-1">
+            会議に集中できる<br>
+            字幕をログとして残せるので，発言内容に集中でき，会議の内容を見逃す心配がありません。
+          </li>
+          <li class="mb-1">
+            字幕のオン・オフでログを取得<br>
+            字幕が表示されている間だけログを取り，字幕がオフになると自動で保存されます。
+          </li>
+          <li class="mb-1">
+            データの一元管理<br>
+            ダウンロードした字幕ログをファイルにまとめることで，過去の会議記録を容易に管理できます。後から議事録として参照したり，記録を整理したりするのが簡単になります。
+          </li>
+        </ul>
+        <p class="mb-1 fw-bold">注意点:</p>
+        <ul>
+          <li>
+            字幕の精度に依存<br>
+            この拡張機能は，Google Meet
+            の字幕機能の精度に依存します。自動生成される字幕は，話者の発音やアクセント，環境音などに影響されるため，必ずしも正確ではありません。特に専門用語や固有名詞は誤認識される可能性があります。
+          </li>
+        </ul>
+
+        この拡張機能をインストールすれば，Google Meet での会議を効率よく記録し，後から内容を確認する手間を大幅に軽減できます。ただし，字幕の精度に留意しながらご利用ください。
+      </div>
     </div>
     <!-- チュートリアル -->
     <div class="tab-pane fade mt-2 mx-2" id="tutorial" role="tabpanel" aria-labelledby="tutorial-tab"
@@ -170,14 +218,37 @@ meet開始時刻    : {meet開始時刻}
       </p>
     </div>
     <!-- API -->
-    <div class="tab-pane fade" id="api" role="tabpanel" aria-labelledby="api-tab">
+    <div class="tab-pane fade mt-2 mx-2" id="api" role="tabpanel" aria-labelledby="api-tab">
       <p>APIに関する情報がここに表示されます。</p>
       <p> Coming Soon…</p>
     </div>
+    <!-- 詳細情報 -->
+    <div class="tab-pane fade mt-2 mx-2" id="info" role="tabpanel" aria-labelledby="info-tab">
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          <p class="m-0">名前:</p>
+          <p class="m-0" id="extension-name"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">説明: </p>
+          
+          <p class="m-0" id="extension-description"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">バージョン: </p>
+          <p class="m-0" id="extension-version"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">ID: </p>
+          <p class="m-0" id="extension-id"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">シークレット モードでの実行を許可する: </p>
+          <p class="m-0" id="incognito-enabled"> </p>
+        </li>
+      </ul>
+    </div>
   </div>
-
-
-
 
   <!-- 固定フッターとしての開閉パネル -->
   <div class="fixed-bottom bg-dark text-white">
@@ -198,10 +269,7 @@ meet開始時刻    : {meet開始時刻}
   </div>
   </div>
 
-
   <!-- スクリプトのリンク -->
   <script src="bootstrap-5.3.0-dist/js/bootstrap.js"></script>
   <script src="popup.js"></script>
 </body>
-
-</html>
