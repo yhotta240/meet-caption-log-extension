@@ -137,3 +137,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  // manifest.jsonの情報を取得
+  const manifestData = chrome.runtime.getManifest();
+  console.log(manifestData);
+  // 各情報を要素に反映
+  document.getElementById('extension-id').textContent = `${chrome.runtime.id}`;
+  document.getElementById('extension-name').textContent = `${manifestData.name}`;
+  document.getElementById('extension-version').textContent = `${manifestData.version}`;
+  document.getElementById('extension-description').textContent = `${manifestData.description}`;
+  chrome.permissions.getAll((permissions) => {
+    document.getElementById('extension-permissions').textContent = `${permissions.permissions.join(', ')}`;
+  });
+  chrome.extension.isAllowedIncognitoAccess((isAllowedAccess) => {
+    document.getElementById('incognito-enabled').textContent = `${isAllowedAccess ? '有効' : '無効'}`;
+  });
+});
+
