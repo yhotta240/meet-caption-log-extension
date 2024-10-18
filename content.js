@@ -4,8 +4,7 @@ const meetUrlPattern = /https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}/
 
 let captionsSaved = false; // 保存が行われたかを記録するフラグ
 let captionsData = []; // 字幕の内容を保存する配列
-let currentText = ''; // 現在の字幕内容を保存
-let arrayText = '';
+let currentText = ''; // 現在の字幕内容を保存/ 
 let backupText = ''; // バックアップ
 let previousLen = -1; // 前のlenの値を保存する
 let meetStartTime = null;      // {meet開始時刻} に対応

@@ -1,5 +1,5 @@
 
-// チェックボックスの状態
+// チェックボックスの状態の初期化
 let isLogEnabled = false;
 
 document.getElementById('captionLogLabel').addEventListener('change', (event) => {
@@ -22,8 +22,7 @@ function insertTag(tag) {
   const textAfter = textarea.value.substring(endPos, textarea.value.length);
   textarea.value = textBefore + tag + textAfter;
 
-  // カーソルをタグの後ろに移動させる処理
-  const newPos = startPos + tag.length;
+  const newPos = startPos + tag.length; // カーソルをタグの後ろに移動させる
   textarea.setSelectionRange(newPos, newPos); // カーソル位置を変更
   textarea.focus(); // フォーカスをテキストエリアに戻す
 }
@@ -48,8 +47,6 @@ document.getElementById('resetButton').addEventListener('click', () => resetSett
 
 // 設定を保存する関数
 function saveSettings(datetime, message) {
-  isLogEnabled = document.getElementById('captionLogLabel').checked;
-  console.log('字幕ログ保存:', isLogEnabled);
 
   const fileName = document.getElementById('fileName').value; // ファイル名を取得
   const fileFormat = document.getElementById('fileFormat').value; // ファイル形式を取得
@@ -57,7 +54,6 @@ function saveSettings(datetime, message) {
 
   // 保存するデータをオブジェクトにまとめる
   const settings = {
-    isLogEnabled: isLogEnabled,
     fileName: fileName,
     fileFormat: fileFormat,
     headerText: headerText,
@@ -87,7 +83,7 @@ function messageOutput(datetime, message) {
 }
 
 document.getElementById('messageClearButton').addEventListener('click', () => {
-  messageDiv.innerHTML = '<p class="m-0">' + '' + '</p>'; // <p> タグで囲んで新しい行にする
+  messageDiv.innerHTML = '<p class="m-0">' + '' + '</p>';
 });
 
 
@@ -112,7 +108,6 @@ function loadSettings() {
       document.getElementById('fileName').value = data.settings.fileName || 'captions'; // ファイル名の設定
       document.getElementById('fileFormat').value = data.settings.fileFormat || 'text/plain'; // ファイル形式の設定
       document.getElementById('headerText').value = data.settings.headerText || defaultHeaderText; // ヘッダーのテキストを設定
-      // const messageDiv = document.getElementById('message');
       // messageDiv.innerHTML = '<p class="m-0">' + data.settings.message[0] + ' ' + data.settings.message[1] + '</p>'; // 保存されたログを表示
     }
 
