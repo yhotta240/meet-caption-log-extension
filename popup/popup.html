@@ -99,7 +99,7 @@ meet開始時刻    : {meet開始時刻}
     </div>
     <!-- チュートリアル -->
     <div class="tab-pane fade m-2" id="tutorial" role="tabpanel" aria-labelledby="tutorial-tab">
-      <p class="mb-1">
+      <p class="mb-1 fw-bold" >
         拡張機能を有効にする
       <ol>
         <li>PCで Chrome を開きます。</li>
@@ -109,25 +109,58 @@ meet開始時刻    : {meet開始時刻}
       </ol>
       </p>
 
-      <p class="mb-1">
+      <p class="mb-1 fw-bold">
         Google Meet 字幕ログを有効にする
       <ol>
         <li>ポップアップを開きます。</li>
         <li>上部の「字幕ログを有効にする」の項目でトグルボタンをオンにします。</li>
-        <li>設定でファイル名，ファイル形式，先頭に付ける文章を設定し，下部の保存ボタンをクリックします。</li>
-        <li><a href="https://meet.google.com/" class="">Google Meet</a> にアクセスし，会議に参加します。</li>
+      </ol>
+      </p>
+      <p class="mb-1 fw-bold">
+        字幕ログの設定
+      <ol>
+        <li>設定画面で，ファイル名，ファイル形式，そしてファイルの先頭に付ける文章を設定します。</li>
+        <li>プレースホルダーを使用すると，ファイルのダウンロード時に自動的に特定の情報が反映されます。<br>
+          使用可能なプレースホルダーの項目は次の通りです：
+          <div class="pt-1 pb-3">
+            <table class="table my-2">
+              <thead>
+                <tr>
+                  <th>プレースホルダー</th>
+                  <th>説明</th>
+                </tr>
+              </thead>
+              <tbody class="table-group-divider">
+                <tr>
+                  <td>{meet開始時刻}</td>
+                  <td>会議の開始時刻</td>
+                </tr>
+                <tr>
+                  <td>{字幕ログ開始時刻}</td>
+                  <td>字幕ログの記録開始時刻</td>
+                </tr>
+                <tr>
+                  <td>{字幕ログ終了時刻}</td>
+                  <td>字幕ログの記録終了時刻</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </li>
+        <li>下部の保存ボタンをクリックします。</li>
       </ol>
       </p>
 
-      <p class="mb-1">
+      <p class="mb-1 fw-bold">
         字幕のログを記録しファイルにする<br>
       <ol>
+        <li><a href="https://meet.google.com/" class="">Google Meet</a> にアクセスし，会議に参加します。</li>
         <li>字幕ボタンをクリックすると，字幕が表示されます。</li>
         <li>任意のタイミングで字幕を解除すると，設定で保存した通りにファイルがダウンロードされます。</li>
       </ol>
       </p>
 
-      <p class="">
+      <p class="fw-bold">
         参考:
         <a href="https://support.google.com/chrome_webstore/answer/2664769?hl=ja" class="">拡張機能をインストールして管理する</a>
       </p>
