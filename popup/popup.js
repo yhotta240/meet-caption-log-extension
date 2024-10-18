@@ -33,7 +33,7 @@ const defaultHeaderText =
   `meet開始時刻    : {meet開始時刻}\n` +
   `字幕ログ開始時刻: {字幕ログ開始時刻}\n` +
   `字幕ログ終了時刻: {字幕ログ終了時刻}\n` +
-  `-----------------------------------------------\n\n`;
+  `-----------------------------------------------\n`;
 
 // 設定をリセットする関数
 function resetSettings() {
@@ -119,3 +119,21 @@ function loadSettings() {
   });
 }
 loadSettings(); // 初期化時に設定を読み込む
+
+document.addEventListener('DOMContentLoaded', function () {
+  const toggleButton = document.getElementById('toggleButton');
+  const bottomPanel = document.getElementById('bottomPanel');
+
+  toggleButton.addEventListener('click', function () {
+    // パネルが開いている場合は閉じる
+    if (bottomPanel.style.height === '150px') {
+      bottomPanel.style.height = '0';
+      toggleButton.textContent = 'メッセージパネルを開く';
+    }
+    // パネルが閉じている場合は開く
+    else {
+      bottomPanel.style.height = '150px'; // 必要に応じて高さを調整
+      toggleButton.textContent = 'メッセージパネルを閉じる';
+    }
+  });
+});
