@@ -140,6 +140,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  const extensionLink = document.getElementById('extension_link');
+  if (extensionLink) clickURL(extensionLink);
   // manifest.jsonの情報を取得
   const manifestData = chrome.runtime.getManifest();
   console.log(manifestData);
@@ -148,11 +151,33 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('extension-name').textContent = `${manifestData.name}`;
   document.getElementById('extension-version').textContent = `${manifestData.version}`;
   document.getElementById('extension-description').textContent = `${manifestData.description}`;
-  chrome.permissions.getAll((permissions) => {
-    document.getElementById('extension-permissions').textContent = `${permissions.permissions.join(', ')}`;
+  const sites = [
+    { url: 'https://meet.google.com/*', elementId: 'meet-status' }
+  ];
+  // アクセス許可状態を確認
+  sites.forEach(site => {
+    chrome.permissions.contains({
+      origins: [site.url]
+    }, (result) => {
+      const statusElement = document.getElementById(site.elementId);
+      statusElement.textContent = result ? '有効' : '無効';
+    });
   });
   chrome.extension.isAllowedIncognitoAccess((isAllowedAccess) => {
     document.getElementById('incognito-enabled').textContent = `${isAllowedAccess ? '有効' : '無効'}`;
   });
+
+  const githubLink = document.getElementById('github-link');
+  if (githubLink) clickURL(githubLink);
+
 });
+
+function clickURL(link) {
+  link.addEventListener('click', (event) => {
+    event.preventDefault(); // デフォルトの動作を防止
+    const url = link.href;
+    chrome.tabs.create({ url });
+    console.log("OK");
+  });
+}
 
