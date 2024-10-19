@@ -143,6 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const extensionLink = document.getElementById('extension_link');
   if (extensionLink) clickURL(extensionLink);
+  const storeLink = document.getElementById('store_link');
+  if (storeLink) clickURL(storeLink);
+
   // manifest.jsonの情報を取得
   const manifestData = chrome.runtime.getManifest();
   console.log(manifestData);
