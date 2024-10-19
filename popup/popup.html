@@ -42,9 +42,13 @@
         aria-selected="false">チュートリアル</a>
     </li>
     <li class="nav-item" role="presentation">
+      <a class="nav-link py-1" id="dive-tab" data-bs-toggle="tab" href="#dive" role="tab" aria-controls="dive"
+        aria-selected="false">ドライブ</a>
+    </li>
+    <!-- <li class="nav-item" role="presentation">
       <a class="nav-link py-1" id="api-tab" data-bs-toggle="tab" href="#api" role="tab" aria-controls="api"
         aria-selected="false">API</a>
-    </li>
+    </li> -->
     <li class="nav-item" role="presentation">
       <a class="nav-link py-1" id="info-tab" data-bs-toggle="tab" href="#info" role="tab" aria-controls="info"
         aria-selected="false">詳細情報</a>
@@ -217,6 +221,11 @@ meet開始時刻    : {meet開始時刻}
         <a href="https://support.google.com/chrome_webstore/answer/2664769?hl=ja" class="">拡張機能をインストールして管理する</a>
       </p>
     </div>
+    <!-- Dive -->
+    <div class="tab-pane fade mt-2 mx-2" id="dive" role="tabpanel" aria-labelledby="dive-tab">
+      <p>Google Dive</p>
+      <p> Coming Soon…</p>
+    </div>
     <!-- API -->
     <div class="tab-pane fade mt-2 mx-2" id="api" role="tabpanel" aria-labelledby="api-tab">
       <p>APIに関する情報がここに表示されます。</p>
@@ -225,13 +234,16 @@ meet開始時刻    : {meet開始時刻}
     <!-- 詳細情報 -->
     <div class="tab-pane fade mt-2 mx-2" id="info" role="tabpanel" aria-labelledby="info-tab">
       <ul class="list-group list-group-flush">
+        <h5 class="pt-3 ps-2 mb-2">詳細</h5>
+        <a class="ps-2 text-end" href="chrome://extensions/?id=fhojgminekpkncachkjbpiagdhnhleop"
+          id="extension_link">この拡張機能を管理する</a>
         <li class="list-group-item">
           <p class="m-0">名前:</p>
           <p class="m-0" id="extension-name"></p>
         </li>
         <li class="list-group-item">
           <p class="m-0">説明: </p>
-          
+
           <p class="m-0" id="extension-description"></p>
         </li>
         <li class="list-group-item">
@@ -243,10 +255,59 @@ meet開始時刻    : {meet開始時刻}
           <p class="m-0" id="extension-id"></p>
         </li>
         <li class="list-group-item">
+          <p>権限</p>
+        </li>
+        <li class="list-group-item">
+          <p>サイトへのアクセス:</p>
+          <p id="permission-info">この拡張機能は、サイト上でユーザー自身のデータを読み取りおよび変更できます。ユーザーは、拡張機能がアクセスできるサイトを管理することができます。</p>
+          <p id="site-access-title">以下のサイトで自動的にアクセスを許可する:</p>
+          <ul id="site-access-list">
+            <li id="google-meet">https://meet.google.com/*: <span id="meet-status">Checking...</span></li>
+          </ul>
+        </li>
+        <li class="list-group-item">
           <p class="m-0">シークレット モードでの実行を許可する: </p>
-          <p class="m-0" id="incognito-enabled"> </p>
+          <p class="m-0" id="incognito-enabled"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">言語: </p>
+          <p class="m-0">日本語 </p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">提供元: </p>
+          <p class="m-0">yhotta240 </p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">デベロッパー: </p>
+          <p class="m-0">yhotta240@gmail.com </p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">GitHub: </p>
+          <a class="m-0" id="github-link"
+            href="https://github.com/yhotta240/meet-caption-log-extension">https://github.com/yhotta240/meet-caption-log-extension
+          </a>
+        </li>
+        <li class="list-group-item">
         </li>
       </ul>
+      <div class="ps-0 " style="margin-bottom: 180px;">
+        <h5 class="ps-1">プライバシー</h5>
+        <p class="ps-3">お客様のデータを収集または使用しないことを表明しています。</p>
+        <p class="ps-3">お客様のデータについて以下を宣言します。</p>
+        <div class="m-2">
+          <ul>
+            <li>
+              承認されている以外の用途で第三者に販売しないこと
+            </li>
+            <li>
+              アイテムの中心機能と関係のない目的で使用または転送しないこと
+            </li>
+            <li>
+              信用力を判断する目的または融資目的で使用または転送しないこと
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 
