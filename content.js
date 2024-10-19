@@ -7,9 +7,9 @@ let captionsData = []; // 字幕の内容を保存する配列
 let currentText = ''; // 現在の字幕内容を保存/ 
 let backupText = ''; // バックアップ
 let previousLen = -1; // 前のlenの値を保存する
-let meetStartTime = null;      // {meet開始時刻} に対応
-let captionStartTime = null;   // {字幕ログ開始時刻} に対応
-let captionEndTime;            // {字幕ログ終了時刻} に対応
+let meetStartTime = null; // {meet開始時刻} に対応
+let captionStartTime = null; // {字幕ログ開始時刻} に対応
+let captionEndTime; // {字幕ログ終了時刻} に対応
 
 // URLの変更を監視する関数
 const checkMeetingStatus = () => {
@@ -57,23 +57,19 @@ const extractCaptions = (captionsContainer) => {
   captionDivs.forEach(span => {
     newText += span.textContent.trim(); // スペースを取り除きながら内容を追加
   });
-
   let commonSubstring = matchCaptions(currentText, newText); // 共通部分を探す
   currentText = currentText.slice(0, currentText.indexOf(commonSubstring)) + newText; // マージ
   // console.log('現在の字幕:', currentText);
   let len = currentText.length;
-
   if (len === 0 && previousLen !== 0) { // バックアップ
     captionsData.push(backupText);
   }
   backupText = currentText;
   previousLen = len;
-
   if (len > 500) { // 500文字以上になった場合に配列にプッシュ
     captionsData.push(currentText);
     currentText = '';
   }
-
 };
 
 // 共通部分を見つける関数
