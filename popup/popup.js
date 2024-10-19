@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const extensionLink = document.getElementById('extension_link');
   if (extensionLink) {clickURL(extensionLink);}
-  const storeLink = document.getElementById('extension_link');
+  const storeLink = document.getElementById('store_link');
 
   if (storeLink) {clickURL(storeLink);}
 
