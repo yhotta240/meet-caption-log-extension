@@ -11,6 +11,7 @@ let meetStartTime = null; // {meet開始時刻} に対応
 let captionStartTime = null; // {字幕ログ開始時刻} に対応
 let captionEndTime; // {字幕ログ終了時刻} に対応
 
+
 // URLの変更を監視する関数
 const checkMeetingStatus = () => {
   const currentUrl = window.location.href;
@@ -22,7 +23,7 @@ const checkMeetingStatus = () => {
 // 字幕ログの有効/無効を確認する関数
 const logEnabled = () => {
   chrome.storage.local.get('isLogEnabled', (data) => {
-    // console.log(isLogEnabled ? '字幕ログが有効:' : '字幕ログが無効:');
+    // console.log(data.isLogEnabled ? '字幕ログが有効:' : '字幕ログが無効:');
     if (data.isLogEnabled) monitorCaptions();
   });
 };
@@ -41,7 +42,7 @@ const monitorCaptions = () => {
     // console.log('字幕が非表示');
     captionEndTime = dateTime();
     if (captionsData.length > 0 && !captionsSaved) {
-      captionsData.push(currentText);
+      updateCaptionsData(currentText);
       saveCaptions(); // 字幕をファイルに保存
       currentText = '';
       backupText = '';
@@ -60,16 +61,41 @@ const extractCaptions = (captionsContainer) => {
   let commonSubstring = matchCaptions(currentText, newText); // 共通部分を探す
   currentText = currentText.slice(0, currentText.indexOf(commonSubstring)) + newText; // マージ
   // console.log('現在の字幕:', currentText);
-  let len = currentText.length;
-  if (len === 0 && previousLen !== 0) { // バックアップ
-    captionsData.push(backupText);
+
+  // console.log("captionsData.length:", captionsData.length);
+  // console.log("previousLen", previousLen);
+  // console.log("currentText.length", currentText.length);
+
+  if (previousLen !== 0 && currentText.length === 0) { // バックアップ
+    // console.log("前回の値から０になったため：", backupText);
+    updateCaptionsData(backupText);
+    // console.log("更新後のcaptionsData:", captionsData);
+  }
+
+  if (currentText.length > 500) {
+    updateCaptionsData(currentText);
+    currentText = ''; // currentTextをクリア
   }
   backupText = currentText;
-  previousLen = len;
-  if (len > 500) { // 500文字以上になった場合に配列にプッシュ
-    captionsData.push(currentText);
-    currentText = '';
+  previousLen = currentText.length;
+};
+
+const updateCaptionsData = (text) => { // captionsDataを更新する関数
+  let lastArrayText = captionsData[captionsData.length - 1];
+
+  if (lastArrayText) {
+    let commonArray = matchCaptions(lastArrayText, text);
+    let arrayText = lastArrayText.slice(0, lastArrayText.indexOf(commonArray)) + commonArray;
+    lastArrayText = arrayText;
+    let newArrayText = text.slice(text.indexOf(commonArray) + commonArray.length);
+    captionsData.push(newArrayText);
+    console.log("更新するnewArrayText:", newArrayText);
+  } else {
+    captionsData.push(text);
+    console.log("更新するtext:", text);
   }
+
+  console.log("更新後のcaptionsData:", captionsData);
 };
 
 // 共通部分を見つける関数
@@ -121,7 +147,7 @@ const saveCaptions = () => {
     captionEndTime = null;
 
     // ファイル作成
-    const blob = new Blob([headerText + captionsData.join('\n')], { type: fileFormat });
+    const blob = new Blob([headerText + '\n' + captionsData.join('')], { type: fileFormat });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -143,7 +169,6 @@ const dateTime = () => {
   const hours = String(now.getHours()).padStart(2, '0');       // 時
   const minutes = String(now.getMinutes()).padStart(2, '0');   // 分
   const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
-  // console.log(formattedDateTime);
   return formattedDateTime;
 };
 
