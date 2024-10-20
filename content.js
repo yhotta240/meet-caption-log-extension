@@ -89,13 +89,13 @@ const updateCaptionsData = (text) => { // captionsDataを更新する関数
     lastArrayText = arrayText;
     let newArrayText = text.slice(text.indexOf(commonArray) + commonArray.length);
     captionsData.push(newArrayText);
-    console.log("更新するnewArrayText:", newArrayText);
+    // console.log("更新するnewArrayText:", newArrayText);
   } else {
     captionsData.push(text);
-    console.log("更新するtext:", text);
+    // console.log("更新するtext:", text);
   }
 
-  console.log("更新後のcaptionsData:", captionsData);
+  // console.log("更新後のcaptionsData:", captionsData);
 };
 
 // 共通部分を見つける関数
