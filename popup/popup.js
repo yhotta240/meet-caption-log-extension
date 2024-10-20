@@ -114,7 +114,7 @@ function loadSettings() {
     // logEnabledの値を取得
     const isLogEnabled = data.isLogEnabled || false; // デフォルトはfalse
     document.getElementById('captionLogLabel').checked = isLogEnabled; // チェックボックスの状態を設定
-    console.log('字幕ログが有効:', isLogEnabled);
+    // console.log('字幕ログが有効:', isLogEnabled);
     messageOutput(dateTime(), isLogEnabled ? '字幕ログは有効になっています' : '字幕ログは無効になっています');
   });
 }
@@ -149,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // manifest.jsonの情報を取得
   const manifestData = chrome.runtime.getManifest();
-  console.log(manifestData);
   // 各情報を要素に反映
   document.getElementById('extension-id').textContent = `${chrome.runtime.id}`;
   document.getElementById('extension-name').textContent = `${manifestData.name}`;
