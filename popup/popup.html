@@ -115,37 +115,32 @@ meet開始時刻    : {meet開始時刻}
         <h5>Google Meetの会議中に表示される字幕を保存します</h5>
         <p>
           「Google Meet 字幕ログ」は，Google Meet
-          会議中に表示されるリアルタイム字幕を記録し，簡単にテキストファイルとして保存できる拡張機能です。会議に参加中，字幕のオン・オフで自動的にログを作成し，保存することが可能です。この拡張機能は，特に議事録作成や多言語の会議，講義の記録など様々な場面で役立ちます。
+          会議中に表示されるリアルタイム字幕を記録し，簡単にテキストファイルとして保存できる拡張機能です。会議に参加中，字幕のオン・オフで自動的にログを作成し，保存することが可能です。この拡張機能は，特に議事録作成や講義の記録など様々な場面で役立ちます。
         </p>
-        <p class="mb-1 fw-bold">インストールするメリット:</p>
-        <ul>
+        <p class="mb-1 fw-bold">拡張機能の主な特徴:</p>
+        <ol>
           <li class="mb-1">
-            議事録の自動作成<br>
-            会議中に表示された字幕をリアルタイムで記録し，自動的にファイルとして保存するので，手動でメモを取る手間が省けます。会議終了後，簡単に議事録やメモを確認することができます。
+            字幕をリアルタイムで記録<br>
+            「Google Meet 字幕ログ」拡張機能は，Google
+            Meetの字幕が表示されたタイミングでリアルタイムにその内容を取得し，保存します。</li>
+          <li class="mb-1">
+            ログの保存機能<br>
+            ユーザは，自分の好みに合わせて字幕ログをローカルファイルとして保存できます。ファイルの形式やヘッダーに記載する情報（日時や会議名など）をカスタマイズできます。
           </li>
           <li class="mb-1">
-            設定の柔軟性<br>
-            字幕ログの保存形式やファイル名，ログの先頭に挿入する文章などを自由に設定可能。
+            字幕データを利用した多用途な活用<br>
+            保存した字幕データは，さまざまな用途に活用可能です。たとえば，ChatGPTなどのAIモデルに字幕データを入力して要約してもらったり，会議の内容をさらに深く分析したりするなど多様なニーズに応えられます。
           </li>
-          <li class="mb-1">
-            会議に集中できる<br>
-            字幕をログとして残せるので，発言内容に集中でき，会議の内容を見逃す心配がありません。
-          </li>
-          <li class="mb-1">
-            字幕のオン・オフでログを取得<br>
-            字幕が表示されている間だけログを取り，字幕がオフになると自動で保存されます。
-          </li>
-          <li class="mb-1">
-            データの一元管理<br>
-            ダウンロードした字幕ログをファイルにまとめることで，過去の会議記録を容易に管理できます。後から議事録として参照したり，記録を整理したりするのが簡単になります。
-          </li>
-        </ul>
+        </ol>
         <p class="mb-1 fw-bold">注意点:</p>
         <ul>
           <li>
             字幕の精度に依存<br>
-            この拡張機能は，Google Meet
-            の字幕機能の精度に依存します。自動生成される字幕は，話者の発音やアクセント，環境音などに影響されるため，必ずしも正確ではありません。特に専門用語や固有名詞は誤認識される可能性があります。
+            この拡張機能は，Google Meetで提供される字幕の精度に依存しています。Google Meetの音声認識精度により，字幕の内容が正確でない場合もありますので，その点はご注意ください。
+          </li>
+          <li>
+            その他<br>
+            現在，この拡張機能はGoogle Meetで一方的に話している状況を想定しており，現時点では誰が話しているかを記録する機能は実装していません。しかし，今後はユーザの要望に応じて機能を追加していく予定です。
           </li>
         </ul>
 
@@ -175,8 +170,8 @@ meet開始時刻    : {meet開始時刻}
       <p class="mb-1 fw-bold">
         字幕ログの設定
       <ol>
-        <li>設定画面で，ファイル名，ファイル形式，そしてファイルの先頭に付ける文章を設定します。</li>
-        <li>テンプレート変数を使用すると，ファイルのダウンロード時に自動的に特定の情報が反映されます。<br>
+        <li>設定画面で「ファイル名」，「ファイル形式」，そしてファイルの「先頭に付ける文章」を設定します。</li>
+        <li>「先頭に付ける文章」では，テンプレート変数を使用すると，ファイルのダウンロード時にヘッダーに自動的に特定の情報が反映されます。<br>
           使用可能なテンプレート変数の項目は次の通りです：
           <div class="pt-1 pb-3">
             <table class="table my-2">
@@ -211,7 +206,7 @@ meet開始時刻    : {meet開始時刻}
         字幕のログを記録しファイルにする<br>
       <ol>
         <li><a href="https://meet.google.com/" class="">Google Meet</a> にアクセスし，会議に参加します。</li>
-        <li>字幕ボタンをクリックすると，字幕が表示されます。</li>
+        <li>字幕ボタンをクリックすると，字幕が表示されます。※言語設定は日本語にしておきましょう</li>
         <li>任意のタイミングで字幕を解除すると，設定で保存した通りにファイルがダウンロードされます。</li>
       </ol>
       </p>
@@ -237,15 +232,16 @@ meet開始時刻    : {meet開始時刻}
       <ul class="list-group list-group-flush">
         <h5 class="pt-3 ps-2 mb-2">詳細</h5>
         <a class="ps-2 text-end" href="chrome://extensions/?id=fhojgminekpkncachkjbpiagdhnhleop"
-        id="extension_link">この拡張機能を管理する</a>
+          id="extension_link">この拡張機能を管理する</a>
         <li class="list-group-item">
-          <a class="" href="https://chromewebstore.google.com/detail/meet-captions-logger-meet/ngbmoalopgfhbfkjidlblfeheehaniie?authuser=0&hl=ja"
-          id="store_link">ストアページに移動:</a>
+          <a class=""
+            href="https://chromewebstore.google.com/detail/meet-captions-logger-meet/ngbmoalopgfhbfkjidlblfeheehaniie?authuser=0&hl=ja"
+            id="store_link">ストアページに移動:</a>
         </li>
-          <li class="list-group-item">
-            <p class="m-0">名前:</p>
-            <p class="m-0" id="extension-name"></p>
-          </li>
+        <li class="list-group-item">
+          <p class="m-0">名前:</p>
+          <p class="m-0" id="extension-name"></p>
+        </li>
         <li class="list-group-item">
           <p class="m-0">説明: </p>
 
