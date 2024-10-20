@@ -136,16 +136,12 @@ document.addEventListener('DOMContentLoaded', function () {
       toggleButton.textContent = 'メッセージパネルを閉じる';
     }
   });
-});
-
-
-document.addEventListener('DOMContentLoaded', () => {
 
   const extensionLink = document.getElementById('extension_link');
-  if (extensionLink) {clickURL(extensionLink);}
+  if (extensionLink) clickURL(extensionLink);
   const storeLink = document.getElementById('store_link');
 
-  if (storeLink) {clickURL(storeLink);}
+  if (storeLink) clickURL(storeLink);
 
   // manifest.jsonの情報を取得
   const manifestData = chrome.runtime.getManifest();
@@ -171,18 +167,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const githubLink = document.getElementById('github-link');
-  if (githubLink) {clickURL(githubLink);}
+  if (githubLink) clickURL(githubLink);
 
 });
 
 function clickURL(link) {
   if (link instanceof HTMLElement) {
-      link.addEventListener('click', (event) => {
-          event.preventDefault(); // デフォルトの動作を防止
-          const url = link.href;
-          chrome.tabs.create({ url });
-          console.log("OK");
-      });
+    link.addEventListener('click', (event) => {
+      event.preventDefault(); // デフォルトの動作を防止
+      const url = link.href;
+      chrome.tabs.create({ url });
+      console.log("OK");
+    });
   }
 }
 
