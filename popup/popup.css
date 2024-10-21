@@ -1,3 +1,14 @@
+html {
+  font-size: 0.8rem;
+}
+
+html,
+body {
+  width: 30rem;
+  min-width: 30rem;
+  margin: 0;
+}
+
 #bottomPanel {
   height: 0;
   overflow: hidden;

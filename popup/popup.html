@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Google Meet Captions Logger</title>
   <!-- <link rel="stylesheet" href="popup.css"> -->
-  <link rel="stylesheet" href="bootstrap-5.3.0-dist/css/bootstrap.css">
+  <link rel="stylesheet" href="bootstrap-5.3.0-dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="popup.css">
 </head>
 
-<body class="container pb-3 p-2" style="width: 420px; min-height: 750px; ">
+<body class="container pb-3 p-2" style="min-height: 500px; ">
 
   <div class="d-flex  my-2 ">
 
@@ -45,19 +45,15 @@
       <a class="nav-link py-1" id="storage-tab" data-bs-toggle="tab" href="#storage" role="tab" aria-controls="storage"
         aria-selected="false">ストレージ</a>
     </li>
-    <!-- <li class="nav-item" role="presentation">
-      <a class="nav-link py-1" id="api-tab" data-bs-toggle="tab" href="#api" role="tab" aria-controls="api"
-        aria-selected="false">API</a>
-    </li> -->
     <li class="nav-item" role="presentation">
       <a class="nav-link py-1" id="info-tab" data-bs-toggle="tab" href="#info" role="tab" aria-controls="info"
-        aria-selected="false">詳細情報</a>
+        aria-selected="false">情報</a>
     </li>
   </ul>
 
   <div class="tab-content" id="myTabContent">
     <!-- 設定 -->
-    <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+    <div class="tab-pane fade show active" id="settings" role="tabpanel" style="margin-bottom: 200px;" aria-labelledby="settings-tab" >
       <ul class="list-group list-group-flush">
         <!-- ファイル名の入力 -->
         <li class="list-group-item">
@@ -109,8 +105,7 @@ meet開始時刻    : {meet開始時刻}
       </ul>
     </div>
     <!-- 概要 -->
-    <div class="tab-pane fade mt-2 mx-2" id="description" role="tabpanel" style="margin-bottom: 200px;"
-      aria-labelledby="description-tab">
+    <div class="tab-pane fade mt-2 mx-2" id="description" role="tabpanel" style="margin-bottom: 200px;" aria-labelledby="description-tab">
       <div>
         <h5>Google Meetの会議中に表示される字幕を保存します</h5>
         <p>
@@ -148,7 +143,7 @@ meet開始時刻    : {meet開始時刻}
       </div>
     </div>
     <!-- チュートリアル -->
-    <div class="tab-pane fade mt-2 mx-2" id="tutorial" role="tabpanel" aria-labelledby="tutorial-tab"
+    <div class="tab-pane fade mt-2 mx-2" id="tutorial" role="tabpanel" style="margin-bottom: 200px;" aria-labelledby="tutorial-tab"
       style="margin-bottom: 200px;">
       <p class="mb-1 fw-bold">
         拡張機能を有効にする
@@ -218,18 +213,13 @@ meet開始時刻    : {meet開始時刻}
       </p>
     </div>
     <!-- クラウドストレージ -->
-    <div class="tab-pane fade mt-2 mx-2" id="storage" role="tabpanel" aria-labelledby="storage-tab">
+    <div class="tab-pane fade mt-2 mx-2" id="storage" role="tabpanel" style="margin-bottom: 200px;" aria-labelledby="storage-tab">
       <p>クラウドストレージ</p>
       <p>Google Dive</p>
       <p> Coming Soon…</p>
     </div>
-    <!-- API -->
-    <div class="tab-pane fade mt-2 mx-2" id="api" role="tabpanel" aria-labelledby="api-tab">
-      <p>APIに関する情報がここに表示されます。</p>
-      <p> Coming Soon…</p>
-    </div>
     <!-- 詳細情報 -->
-    <div class="tab-pane fade mt-2 mx-2" id="info" role="tabpanel" aria-labelledby="info-tab">
+    <div class="tab-pane fade mt-2 mx-2" id="info" role="tabpanel" style="margin-bottom: 200px;" aria-labelledby="info-tab">
       <ul class="list-group list-group-flush">
         <h5 class="pt-3 ps-2 mb-2">詳細</h5>
         <a class="ps-2 text-end" href="chrome://extensions/?id=fhojgminekpkncachkjbpiagdhnhleop"
@@ -333,6 +323,6 @@ meet開始時刻    : {meet開始時刻}
   </div>
 
   <!-- スクリプトのリンク -->
-  <script src="bootstrap-5.3.0-dist/js/bootstrap.js"></script>
+  <script src="bootstrap-5.3.0-dist/js/bootstrap.bundle.min.js"></script>
   <script src="popup.js"></script>
 </body>
