@@ -53,7 +53,7 @@ const monitorCaptions = () => {
 
 // 字幕のテキストを抽出して配列に追加する関数
 const extractCaptions = (captionsContainer) => {
-  const captionDivs = captionsContainer.querySelectorAll('div[jsname="tgaKEf"].iTTPOb.VbkSUe span');
+  const captionDivs = captionsContainer.querySelectorAll('[jsname="tgaKEf"]');
   let newText = ''; // 新しい字幕内容を保存する変数
   captionDivs.forEach(span => {
     newText += span.textContent.trim(); // スペースを取り除きながら内容を追加
