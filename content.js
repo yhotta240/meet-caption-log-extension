@@ -2,15 +2,11 @@
 // 会議中のURLの正規表現
 const meetUrlPattern = /https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}/;
 
-let captionsSaved = false; // 保存が行われたかを記録するフラグ
-let captionsData = []; // 字幕の内容を保存する配列
+let captionsSaved = true; // 保存が行われたかを記録するフラグ
 let currentText = ''; // 現在の字幕内容を保存/ 
-let backupText = ''; // バックアップ
-let previousLen = -1; // 前のlenの値を保存する
 let meetStartTime = null; // {meet開始時刻} に対応
 let captionStartTime = null; // {字幕ログ開始時刻} に対応
 let captionEndTime; // {字幕ログ終了時刻} に対応
-
 
 // URLの変更を監視する関数
 const checkMeetingStatus = () => {
@@ -30,88 +26,25 @@ const logEnabled = () => {
 
 // 字幕の表示を監視する関数
 const monitorCaptions = () => {
-  const captionsContainer = document.querySelector('div[jsname="dsyhDe"].iOzk7.XDPoIe');
-  if (!captionsContainer) return;
-
-  if (captionsContainer.style.display === '') {
-    // console.log('字幕が表示されました');
+  const captionsContainer = document.querySelector('div[jscontroller="KPn5nb"]');
+  const captionsRegion = document.querySelector('.nMcdL.bj4p3b');
+  // console.log("captionsSaved", captionsSaved);
+  if (captionsRegion) {
+    // console.log('字幕が表示されました', captionsContainer.textContent, captionsContainer.textContent.length);
     captionsSaved = false;
     if (!captionStartTime) captionStartTime = dateTime();
-    extractCaptions(captionsContainer); // 字幕を抽出
-  } else if (captionsContainer.style.display === 'none') {
-    // console.log('字幕が非表示');
-    captionEndTime = dateTime();
-    if (captionsData.length > 0 && !captionsSaved) {
-      updateCaptionsData(currentText);
-      saveCaptions(); // 字幕をファイルに保存
-      currentText = '';
-      backupText = '';
+    currentText = captionsContainer.textContent.trim();
+    // console.log("currentText", currentText.length, currentText);
+  } else {
+    // console.log("字幕が非表示", !captionsSaved, currentText.length > 20);
+    if (!captionsSaved && currentText.length > 20) {
+      captionEndTime = dateTime();
+      // console.log("字幕が非表示になりました。保存します。", currentText.length);
+      saveCaptions();// 字幕をファイルに保存
       captionsSaved = true;
     }
   }
-};
-
-// 字幕のテキストを抽出して配列に追加する関数
-const extractCaptions = (captionsContainer) => {
-  const captionDivs = captionsContainer.querySelectorAll('[jsname="tgaKEf"]');
-  let newText = ''; // 新しい字幕内容を保存する変数
-  captionDivs.forEach(span => {
-    newText += span.textContent.trim(); // スペースを取り除きながら内容を追加
-  });
-  let commonSubstring = matchCaptions(currentText, newText); // 共通部分を探す
-  currentText = currentText.slice(0, currentText.indexOf(commonSubstring)) + newText; // マージ
-  // console.log('現在の字幕:', currentText);
-
-  // console.log("captionsData.length:", captionsData.length);
-  // console.log("previousLen", previousLen);
-  // console.log("currentText.length", currentText.length);
-
-  if (previousLen !== 0 && currentText.length === 0) { // バックアップ
-    // console.log("前回の値から０になったため：", backupText);
-    updateCaptionsData(backupText);
-    // console.log("更新後のcaptionsData:", captionsData);
-  }
-
-  if (currentText.length > 500) {
-    updateCaptionsData(currentText);
-    currentText = ''; // currentTextをクリア
-  }
-  backupText = currentText;
-  previousLen = currentText.length;
-};
-
-const updateCaptionsData = (text) => { // captionsDataを更新する関数
-  let lastArrayText = captionsData[captionsData.length - 1];
-
-  if (lastArrayText) {
-    let commonArray = matchCaptions(lastArrayText, text);
-    let arrayText = lastArrayText.slice(0, lastArrayText.indexOf(commonArray)) + commonArray;
-    lastArrayText = arrayText;
-    let newArrayText = text.slice(text.indexOf(commonArray) + commonArray.length);
-    captionsData.push(newArrayText);
-    // console.log("更新するnewArrayText:", newArrayText);
-  } else {
-    captionsData.push(text);
-    // console.log("更新するtext:", text);
-  }
-
-  // console.log("更新後のcaptionsData:", captionsData);
-};
-
-// 共通部分を見つける関数
-const matchCaptions = (str1, str2) => {
-  if (!str1 || !str2) return '';
-  let commonSubstring = '';
-  for (let i = 0; i < str1.length; i++) {
-    for (let j = i; j < str1.length; j++) {
-      let substring = str1.substring(i, j + 1);
-      if (str2.includes(substring) && substring.length > commonSubstring.length) {
-        commonSubstring = substring;
-      }
-    }
-  }
-  return commonSubstring;
-};
+}
 
 // 字幕を保存する関数
 const saveCaptions = () => {
@@ -145,9 +78,10 @@ const saveCaptions = () => {
 
     captionStartTime = null;
     captionEndTime = null;
-
     // ファイル作成
-    const blob = new Blob([headerText + '\n' + captionsData.join('')], { type: fileFormat });
+    // console.log("currentText", currentText, currentText.length);
+    currentText = currentText.slice(0, -20); // currentTextの最後の20文字を削除
+    const blob = new Blob([headerText + '\n' + currentText + '\n'], { type: fileFormat });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -156,7 +90,7 @@ const saveCaptions = () => {
     a.click();
     document.body.removeChild(a);
 
-    captionsData = []; // 字幕データをリセット
+    currentText = '';
   });
 };
 
@@ -173,7 +107,14 @@ const dateTime = () => {
 };
 
 // URL変更監視
-const observer = new MutationObserver(() => logEnabled());
+let debounceTimer;
+
+const observer = new MutationObserver(() => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    logEnabled();
+  }, 200);
+});
 observer.observe(document, { childList: true, attributes: true, subtree: true });
 
 checkMeetingStatus(); // 初回チェック
