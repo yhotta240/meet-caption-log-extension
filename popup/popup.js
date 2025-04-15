@@ -1,6 +1,9 @@
 
 // チェックボックスの状態の初期化
 let isLogEnabled = false;
+// manifest.jsonの情報を取得
+const manifestData = chrome.runtime.getManifest();
+
 
 document.getElementById('captionLogLabel').addEventListener('change', (event) => {
   isLogEnabled = event.target.checked; // チェックボックスの状態を取得
@@ -103,6 +106,7 @@ function dateTime() {
 // 保存された設定を読み込む関数
 function loadSettings() {
   chrome.storage.local.get(['settings', 'isLogEnabled'], (data) => {
+    // console.log(data);
     if (data.settings) {
       // 設定を読み込む
       document.getElementById('fileName').value = data.settings.fileName || 'captions'; // ファイル名の設定
@@ -138,13 +142,13 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   const extensionLink = document.getElementById('extension_link');
+  extensionLink.href = `chrome://extensions/?id=${chrome.runtime.id}`;
   if (extensionLink) clickURL(extensionLink);
+  const issueLink = document.getElementById('issue-link');
+  if (issueLink) clickURL(issueLink);
   const storeLink = document.getElementById('store_link');
-
+  storeLink.href = `https://chrome.google.com/webstore/detail/${chrome.runtime.id}`;
   if (storeLink) clickURL(storeLink);
-
-  // manifest.jsonの情報を取得
-  const manifestData = chrome.runtime.getManifest();
   // 各情報を要素に反映
   document.getElementById('extension-id').textContent = `${chrome.runtime.id}`;
   document.getElementById('extension-name').textContent = `${manifestData.name}`;
@@ -172,13 +176,11 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function clickURL(link) {
+  const url = link.href ? link.href : link;
   if (link instanceof HTMLElement) {
     link.addEventListener('click', (event) => {
-      event.preventDefault(); // デフォルトの動作を防止
-      const url = link.href;
+      event.preventDefault();
       chrome.tabs.create({ url });
-      console.log("OK");
     });
   }
 }
-
