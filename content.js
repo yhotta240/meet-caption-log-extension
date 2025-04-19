@@ -13,6 +13,7 @@ const checkMeetingStatus = () => {
   const currentUrl = window.location.href;
   if (meetUrlPattern.test(currentUrl) && !meetStartTime) {
     meetStartTime = dateTime();
+    chrome.storage.local.set({ meetStartTime }, () => { });
   }
 };
 
@@ -32,13 +33,18 @@ const monitorCaptions = () => {
   if (captionsRegion) {
     // console.log('字幕が表示されました', captionsContainer.textContent, captionsContainer.textContent.length);
     captionsSaved = false;
-    if (!captionStartTime) captionStartTime = dateTime();
+    if (!captionStartTime) {
+      captionStartTime = dateTime();
+      captionEndTime = null;
+      chrome.storage.local.set({ captionStartTime, captionEndTime }, () => { });
+    };
     currentText = captionsContainer.textContent.trim();
     // console.log("currentText", currentText.length, currentText);
   } else {
     // console.log("字幕が非表示", !captionsSaved, currentText.length > 20);
     if (!captionsSaved && currentText.length > 20) {
       captionEndTime = dateTime();
+      chrome.storage.local.set({ captionEndTime }, () => { });
       // console.log("字幕が非表示になりました。保存します。", currentText.length);
       saveCaptions();// 字幕をファイルに保存
       captionsSaved = true;
