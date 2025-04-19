@@ -4,6 +4,20 @@ let isLogEnabled = false;
 // manifest.jsonの情報を取得
 const manifestData = chrome.runtime.getManifest();
 
+chrome.storage.onChanged.addListener((changes) => {
+  ['meetStartTime', 'captionStartTime', 'captionEndTime'].forEach(key => {
+    if (changes[key]) messageOutput(changes[key].newValue, {
+      meetStartTime: '会議が開始されました',
+      captionStartTime: '字幕ログが開始されました',
+      captionEndTime: '字幕ログが終了しました'
+    }[key]);
+  });
+  const captionEndTime = changes.captionEndTime;
+  if (captionEndTime) {
+    messageOutput(captionEndTime.newValue, '字幕ログが終了しました');
+  }
+});
+
 
 document.getElementById('captionLogLabel').addEventListener('change', (event) => {
   isLogEnabled = event.target.checked; // チェックボックスの状態を取得
@@ -82,6 +96,7 @@ document.getElementById('saveButton').addEventListener('click', () => {
 
 const messageDiv = document.getElementById('message');
 function messageOutput(datetime, message) {
+  if (!datetime || !message) return;
   messageDiv.innerHTML += '<p class="m-0">' + datetime + ' ' + message + '</p>'; // <p> タグで囲んで新しい行にする
 }
 
@@ -105,7 +120,7 @@ function dateTime() {
 
 // 保存された設定を読み込む関数
 function loadSettings() {
-  chrome.storage.local.get(['settings', 'isLogEnabled'], (data) => {
+  chrome.storage.local.get(['settings', 'isLogEnabled', 'meetStartTime', 'captionStartTime', 'captionEndTime'], (data) => {
     // console.log(data);
     if (data.settings) {
       // 設定を読み込む
@@ -119,7 +134,22 @@ function loadSettings() {
     const isLogEnabled = data.isLogEnabled || false; // デフォルトはfalse
     document.getElementById('captionLogLabel').checked = isLogEnabled; // チェックボックスの状態を設定
     // console.log('字幕ログが有効:', isLogEnabled);
-    messageOutput(dateTime(), isLogEnabled ? '字幕ログは有効になっています' : '字幕ログは無効になっています');
+
+    const logs = [
+      { time: dateTime(), message: "字幕ログは有効になっています" },
+      { time: data.meetStartTime, message: "会議が開始されました" },
+      { time: data.captionStartTime, message: "字幕ログが開始されました" },
+      { time: data.captionEndTime, message: "字幕ログが終了しました" }
+    ];
+
+    // 並び替え（昇順）
+    logs.sort((a, b) => new Date(a.time) - new Date(b.time));
+    // 結果表示
+    logs.forEach(log => {
+      // console.log(`${log.time} ${log.message}`);
+      messageOutput(log.time, log.message); // メッセージを表示
+    });
+
   });
 }
 loadSettings(); // 初期化時に設定を読み込む
