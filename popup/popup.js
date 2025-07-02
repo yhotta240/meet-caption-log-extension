@@ -100,7 +100,7 @@ function messageOutput(datetime, message) {
   messageDiv.innerHTML += '<p class="m-0">' + datetime + ' ' + message + '</p>'; // <p> タグで囲んで新しい行にする
 }
 
-document.getElementById('messageClearButton').addEventListener('click', () => {
+document.getElementById('clear-button').addEventListener('click', () => {
   messageDiv.innerHTML = '<p class="m-0">' + '' + '</p>';
 });
 
@@ -155,20 +155,10 @@ function loadSettings() {
 loadSettings(); // 初期化時に設定を読み込む
 
 document.addEventListener('DOMContentLoaded', function () {
-  const toggleButton = document.getElementById('toggleButton');
-  const bottomPanel = document.getElementById('bottomPanel');
 
-  toggleButton.addEventListener('click', function () {
-    // パネルが開いている場合は閉じる
-    if (bottomPanel.style.height === '150px') {
-      bottomPanel.style.height = '0';
-      toggleButton.textContent = 'メッセージパネルを開く';
-    }
-    // パネルが閉じている場合は開く
-    else {
-      bottomPanel.style.height = '150px'; // 必要に応じて高さを調整
-      toggleButton.textContent = 'メッセージパネルを閉じる';
-    }
+  const newTabButton = document.getElementById('new-tab-button');
+  newTabButton.addEventListener('click', () => {
+    chrome.tabs.create({ url: 'popup/popup.html' });
   });
 
   const extensionLink = document.getElementById('extension_link');

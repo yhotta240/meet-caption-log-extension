@@ -1,16 +1,20 @@
 html {
   font-size: 0.8rem;
-}
-
-html,
-body {
-  width: 30rem;
   min-width: 30rem;
-  margin: 0;
 }
 
-#bottomPanel {
+@media (min-width: 768px) {
+  .container-md {
+    max-width: 720px !important;
+  }
+}
+
+#panel {
   height: 0;
   overflow: hidden;
   transition: height 0.3s ease;
+}
+
+#panel.no-transition {
+  transition: none !important;
 }
