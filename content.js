@@ -2,11 +2,14 @@
 // 会議中のURLの正規表現
 const meetUrlPattern = /https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}/;
 
-let captionsSaved = true; // 保存が行われたかを記録するフラグ
-let currentText = ''; // 現在の字幕内容を保存/ 
+let isCaptionsSaved = true; // 保存が行われたかを記録するフラグ
 let meetStartTime = null; // {meet開始時刻} に対応
 let captionStartTime = null; // {字幕ログ開始時刻} に対応
 let captionEndTime; // {字幕ログ終了時刻} に対応
+let prevSpeakerCount = 1; // 前回のスピーカーの数;
+let caption = {}; // 字幕を保存するオブジェクト
+let captions = []; // 字幕を保存する配列
+let outputText = ''; // ファイルに出力するテキスト
 
 // URLの変更を監視する関数
 const checkMeetingStatus = () => {
@@ -27,27 +30,47 @@ const logEnabled = () => {
 
 // 字幕の表示を監視する関数
 const monitorCaptions = () => {
-  const captionsContainer = document.querySelector('div[jscontroller="KPn5nb"]');
-  const captionsRegion = document.querySelector('.nMcdL.bj4p3b');
-  // console.log("captionsSaved", captionsSaved);
-  if (captionsRegion) {
-    // console.log('字幕が表示されました', captionsContainer.textContent, captionsContainer.textContent.length);
-    captionsSaved = false;
+  const captionItems = document.querySelectorAll('.nMcdL.bj4p3b');
+  const speakers = document.querySelectorAll('.adE6rb');
+
+  if (captionItems.length > 0) {
+    isCaptionsSaved = false;
     if (!captionStartTime) {
       captionStartTime = dateTime();
       captionEndTime = null;
       chrome.storage.local.set({ captionStartTime, captionEndTime }, () => { });
     };
-    currentText = captionsContainer.textContent.trim();
-    // console.log("currentText", currentText.length, currentText);
+
+    const speakerText = speakers[speakers.length - 1].textContent;
+    const captionText = captionItems[captionItems.length - 1].querySelector('.ygicle.VbkSUe').textContent;
+    // console.log("スピーカー", speakerText, "字幕", captionText);
+
+    // 前回のスピーカー数と現在のスピーカー数が異なる場合
+    if (prevSpeakerCount !== speakers.length) {
+      captions.push(caption);
+    }
+
+    caption = {
+      num: speakers.length,
+      time: dateTime(),
+      speaker: speakerText,
+      text: captionText,
+    };
+    // console.log("caption", caption);
+
+    prevSpeakerCount = speakers.length;
+
   } else {
-    // console.log("字幕が非表示", !captionsSaved, currentText.length > 20);
-    if (!captionsSaved && currentText.length > 20) {
+    // console.log("字幕が非表示", !isCaptionsSaved);
+    if (!isCaptionsSaved) {
+      captions.push(caption);
+
       captionEndTime = dateTime();
-      chrome.storage.local.set({ captionEndTime }, () => { });
+      chrome.storage.local.set({ captionEndTime });
       // console.log("字幕が非表示になりました。保存します。", currentText.length);
-      saveCaptions();// 字幕をファイルに保存
-      captionsSaved = true;
+      saveCaptions(); // 字幕をファイルに保存
+      isCaptionsSaved = true;
+      prevSpeakerCount = 1;
     }
   }
 }
@@ -84,10 +107,13 @@ const saveCaptions = () => {
 
     captionStartTime = null;
     captionEndTime = null;
+
+    captions.forEach((caption) => {
+      outputText += `\n${caption.speaker}:\n ${caption.text}\n`;
+    });
+
     // ファイル作成
-    // console.log("currentText", currentText, currentText.length);
-    currentText = currentText.slice(0, -20); // currentTextの最後の20文字を削除
-    const blob = new Blob([headerText + '\n' + currentText + '\n'], { type: fileFormat });
+    const blob = new Blob([headerText + outputText + '\n'], { type: fileFormat });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -96,11 +122,12 @@ const saveCaptions = () => {
     a.click();
     document.body.removeChild(a);
 
-    currentText = '';
+    captions = [];
+    outputText = '';
   });
 };
 
-const dateTime = () => {
+function dateTime() {
   // 現在の日付と時刻を取得
   const now = new Date();
   const year = now.getFullYear();           // 年
