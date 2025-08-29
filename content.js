@@ -2,6 +2,17 @@
 // 会議中のURLの正規表現
 const meetUrlPattern = /https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}/;
 
+// ファイルフォーマット定義
+const format = {
+  txt: 'text/plain',
+  csv: 'text/csv',
+  'text/plain': 'txt',
+  'text/csv': 'csv',
+};
+
+// UTF-8 BOM
+const bom = '\uFEFF';
+
 let isCaptionsSaved = true; // 保存が行われたかを記録するフラグ
 let meetStartTime = null; // {meet開始時刻} に対応
 let captionStartTime = null; // {字幕ログ開始時刻} に対応
@@ -83,8 +94,13 @@ const saveCaptions = () => {
     if (data.settings) {
       // 設定からファイル名と形式を取得
       fileName = data.settings.fileName;
-      fileFormat = data.settings.fileFormat;
+      fileFormat = format[data.settings.fileFormat];
       headerText = data.settings.headerText;
+
+      // CSV形式の場合は BOM を付与
+      if (fileFormat === 'text/csv') {
+        headerText = bom + headerText;
+      }
 
     } else {
 

@@ -4,6 +4,13 @@ let isLogEnabled = false;
 // manifest.jsonの情報を取得
 const manifestData = chrome.runtime.getManifest();
 
+const format = {
+  'txt': 'text/plain',
+  'csv': 'text/csv',
+  'text/plain': 'txt',
+  'text/csv': 'csv'
+};
+
 chrome.storage.onChanged.addListener((changes) => {
   ['meetStartTime', 'captionStartTime', 'captionEndTime'].forEach(key => {
     if (changes[key]) messageOutput(changes[key].newValue, {
@@ -55,7 +62,7 @@ const defaultHeaderText =
 // 設定をリセットする関数
 function resetSettings() {
   document.getElementById('fileName').value = 'caption'; // ファイル名をリセット
-  document.getElementById('fileFormat').value = 'txt'; // ファイル名をリセット
+  document.getElementById('fileFormat').value = 'text/plain'; // ファイル名をリセット
   document.getElementById('headerText').value = defaultHeaderText; // テキストエリアをデフォルトにリセット
   // saveSettings(dateTime(), '設定がリセットされました'); // リセットされた設定を保存
 }
@@ -66,13 +73,13 @@ document.getElementById('resetButton').addEventListener('click', () => resetSett
 function saveSettings(datetime, message) {
 
   const fileName = document.getElementById('fileName').value; // ファイル名を取得
-  const fileFormat = document.getElementById('fileFormat').value; // ファイル形式を取得
+  const fileFormat = document.getElementById('fileFormat').value; // ファイル形式を取得 （txt, csv）
   let headerText = document.getElementById('headerText').value; // ヘッダーのテキストを取得
 
   // 保存するデータをオブジェクトにまとめる
   const settings = {
     fileName: fileName,
-    fileFormat: fileFormat,
+    fileFormat: format[fileFormat],
     headerText: headerText,
     message: [datetime, message],
   };
@@ -125,7 +132,7 @@ function loadSettings() {
     if (data.settings) {
       // 設定を読み込む
       document.getElementById('fileName').value = data.settings.fileName || 'captions'; // ファイル名の設定
-      document.getElementById('fileFormat').value = data.settings.fileFormat || 'text/plain'; // ファイル形式の設定
+      document.getElementById('fileFormat').value = format[data.settings.fileFormat] || 'text/plain'; // ファイル形式の設定
       document.getElementById('headerText').value = data.settings.headerText || defaultHeaderText; // ヘッダーのテキストを設定
       // messageDiv.innerHTML = '<p class="m-0">' + data.settings.message[0] + ' ' + data.settings.message[1] + '</p>'; // 保存されたログを表示
     }
