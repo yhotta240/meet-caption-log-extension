@@ -4,11 +4,14 @@ let isLogEnabled = false;
 // manifest.jsonの情報を取得
 const manifestData = chrome.runtime.getManifest();
 
+// ファイルフォーマット定義
 const format = {
-  'txt': 'text/plain',
-  'csv': 'text/csv',
+  txt: 'text/plain',
+  csv: 'text/csv',
+  md: 'text/markdown',
   'text/plain': 'txt',
-  'text/csv': 'csv'
+  'text/csv': 'csv',
+  'text/markdown': 'md',
 };
 
 chrome.storage.onChanged.addListener((changes) => {
@@ -51,20 +54,52 @@ function insertTag(tag) {
   textarea.focus(); // フォーカスをテキストエリアに戻す
 }
 
-const defaultHeaderText =
-  `-----------------------------------------------\n` +
+const textHeaderDefault =
+  `---\n` +
   `プロジェクトの打ち合わせ\n` +
   `meet開始時刻    : {meet開始時刻}\n` +
   `字幕ログ開始時刻: {字幕ログ開始時刻}\n` +
   `字幕ログ終了時刻: {字幕ログ終了時刻}\n` +
-  `-----------------------------------------------\n`;
+  `---\n`;
+
+const mdHeaderDefault =
+  `---\n` +
+  `title: プロジェクトの打ち合わせ\n` +
+  `meet_start: {meet開始時刻}\n` +
+  `caption_log_start: {字幕ログ開始時刻}\n` +
+  `caption_log_end: {字幕ログ終了時刻}\n` +
+  `---\n`;
+
+const defaultHeaderMap = {
+  'text/plain': textHeaderDefault,
+  'text/csv': textHeaderDefault,
+  'text/markdown': mdHeaderDefault,
+};
+
+// ファイル形式の選択が変わったときの処理
+document.getElementById('fileFormat')?.addEventListener('change', (event) => {
+  const selectedFormat = (event.target).value;
+
+  chrome.storage.local.get(['settings'], ({ settings }) => {
+    const headerInput = document.getElementById('headerText');
+    // settingsがあればそのまま使用
+    if (settings) {
+      headerInput.value = settings.headerText;
+      return;
+    }
+
+    headerInput.value = defaultHeaderMap[selectedFormat] || '';
+  });
+});
 
 // 設定をリセットする関数
 function resetSettings() {
+  const fileFormatInput = document.getElementById('fileFormat').value;
+
   document.getElementById('fileName').value = 'caption'; // ファイル名をリセット
-  document.getElementById('fileFormat').value = 'text/plain'; // ファイル名をリセット
-  document.getElementById('headerText').value = defaultHeaderText; // テキストエリアをデフォルトにリセット
-  // saveSettings(dateTime(), '設定がリセットされました'); // リセットされた設定を保存
+  document.getElementById('headerText').value = defaultHeaderMap[fileFormatInput];
+
+  messageOutput(dateTime(), '設定がリセットされました');
 }
 document.getElementById('resetButton').addEventListener('click', () => resetSettings());
 
@@ -133,7 +168,7 @@ function loadSettings() {
       // 設定を読み込む
       document.getElementById('fileName').value = data.settings.fileName || 'captions'; // ファイル名の設定
       document.getElementById('fileFormat').value = format[data.settings.fileFormat] || 'text/plain'; // ファイル形式の設定
-      document.getElementById('headerText').value = data.settings.headerText || defaultHeaderText; // ヘッダーのテキストを設定
+      document.getElementById('headerText').value = data.settings.headerText || textHeaderDefault; // ヘッダーのテキストを設定
       // messageDiv.innerHTML = '<p class="m-0">' + data.settings.message[0] + ' ' + data.settings.message[1] + '</p>'; // 保存されたログを表示
     }
 

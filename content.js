@@ -6,8 +6,10 @@ const meetUrlPattern = /https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}/
 const format = {
   txt: 'text/plain',
   csv: 'text/csv',
+  md: 'text/markdown',
   'text/plain': 'txt',
   'text/csv': 'csv',
+  'text/markdown': 'md',
 };
 
 // UTF-8 BOM
@@ -102,19 +104,25 @@ const saveCaptions = () => {
         headerText = bom + headerText;
       }
 
+      // Markdown 形式の場合はファイル名に .md を追加
+      if (fileFormat === 'text/markdown' && !fileName.endsWith('.md')) {
+        fileName += ".md";
+      }
+
     } else {
 
       // デフォルト設定
       fileName = 'captions';
       fileFormat = 'text/plain';
       headerText =
-        `-----------------------------------------------\n` +
+        `---\n` +
         `プロジェクトの打ち合わせ\n` +
         `meet開始時刻    : {meet開始時刻}\n` +
         `字幕ログ開始時刻: {字幕ログ開始時刻}\n` +
         `字幕ログ終了時刻: {字幕ログ終了時刻}\n` +
-        `-----------------------------------------------\n`;
+        `---\n`;
     }
+
 
     headerText = headerText
       .replace(/{meet開始時刻}/g, meetStartTime)
@@ -137,6 +145,8 @@ const saveCaptions = () => {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+
+    URL.revokeObjectURL(url); // メモリ解放
 
     captions = [];
     outputText = '';
