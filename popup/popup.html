@@ -53,10 +53,10 @@
       <a class="nav-link py-1 p-md-2" id="document-tab" data-bs-toggle="tab" href="#document" role="tab"
         aria-controls="document" aria-selected="false">ドキュメント</a>
     </li>
-    <!-- <li class="nav-item" role="presentation">
-      <a class="nav-link py-1" id="storage-tab" data-bs-toggle="tab" href="#storage" role="tab" aria-controls="storage"
-        aria-selected="false">ストレージ</a>
-    </li> -->
+    <li class="nav-item" role="presentation">
+      <a class="nav-link py-1 p-md-2" id="version-tab" data-bs-toggle="tab" href="#version" role="tab"
+        aria-controls="version" aria-selected="false">バージョン</a>
+    </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link py-1 p-md-2" id="info-tab" data-bs-toggle="tab" href="#info" role="tab" aria-controls="info"
         aria-selected="false">情報</a>
@@ -246,14 +246,63 @@ meet開始時刻    : {meet開始時刻}
         </div>
       </div>
     </div>
-
-    <!-- クラウドストレージ -->
-    <!-- <div class="tab-pane fade mt-2 mx-2" id="storage" role="tabpanel" style="margin-bottom: 200px;"
-      aria-labelledby="storage-tab">
-      <p>クラウドストレージ</p>
-      <p>Google Dive</p>
-      <p> Coming Soon…</p>
-    </div> -->
+    <!-- バージョン情報 -->
+    <div class="tab-pane fade mt-2 mx-2" id="version" role="tabpanel" style="margin-bottom: 200px;"
+      aria-labelledby="version-tab">
+      <ul class="list-group list-group-flush">
+        <h5 class="pt-3 ps-2 mb-2">更新履歴</h5>
+        <li class="list-group-item">
+          <strong>v1.5.1</strong>
+          <ul class="small mt-1">
+            <li>CSV出力の不具合を修正</li>
+            <li>ファイル形式の処理をリファクタリング</li>
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <strong>v1.5.0</strong>
+          <ul class="small mt-1">
+            <li>メッセージパネルを修正</li>
+            <li>ポップアップを新しいタブで開く機能を追加</li>
+            <li>保存処理を改善し、話者と内容をより正確に記録</li>
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <strong>v1.4.0</strong>
+          <ul class="small mt-1">
+            <li>字幕ログの状態変更時にメッセージを表示する機能を追加</li>
+            <li>字幕の開始・終了時刻を保存する機能を追加</li>
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <strong>v1.3.0</strong>
+          <ul class="small mt-1">
+            <li>字幕表示の監視ロジックを改善</li>
+            <li>情報タブに拡張機能管理と問題報告リンクを追加</li>
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <strong>v1.2.0 - v1.2.4</strong>
+          <ul class="small mt-1">
+            <li>チュートリアルに画像を追加</li>
+            <li>字幕が取得できないことがある問題を修正</li>
+            <li>内部処理の効率化と軽微な不具合修正</li>
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <strong>v1.0.1</strong>
+          <ul class="small mt-1">
+            <li>ポップアップに概要・詳細情報タブを追加</li>
+            <li>メッセージパネルを追加</li>
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <strong>v1.0.0</strong>
+          <ul class="small mt-1">
+            <li>初回リリース</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
     <!-- 詳細情報 -->
     <div class="tab-pane fade mt-2 mx-2" id="info" role="tabpanel" style="margin-bottom: 200px;"
       aria-labelledby="info-tab">
