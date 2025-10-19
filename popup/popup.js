@@ -135,6 +135,35 @@ document.getElementById('saveButton').addEventListener('click', () => {
   saveSettings(dateTime(), '設定が保存されました');
 });
 
+const saveOnEndCall = document.getElementById('saveOnEndCall');
+const saveOnTabClose = document.getElementById('saveOnTabClose');
+
+// オプションを読み込む
+function loadOptions() {
+  chrome.storage.local.get('options', (data) => {
+    if (data.options) {
+      saveOnEndCall.checked = data.options.saveOnEndCall != false;
+      saveOnTabClose.checked = data.options.saveOnTabClose != false;
+    } else {
+      saveOnEndCall.checked = true;
+      saveOnTabClose.checked = true;
+      chrome.storage.local.set({ options: { saveOnEndCall: true, saveOnTabClose: true } });
+    }
+  });
+}
+loadOptions();
+
+// オプションを保存する
+function saveOptions() {
+  const options = {
+    saveOnEndCall: saveOnEndCall.checked,
+    saveOnTabClose: saveOnTabClose.checked
+  };
+
+  chrome.storage.local.set({ options }, () => messageOutput(dateTime(), 'オプションが保存されました'));
+}
+saveOnEndCall.addEventListener('change', saveOptions);
+saveOnTabClose.addEventListener('change', saveOptions);
 
 const messageDiv = document.getElementById('message');
 function messageOutput(datetime, message) {

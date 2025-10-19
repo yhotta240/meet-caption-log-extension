@@ -23,26 +23,42 @@ let prevSpeakerCount = 1; // 前回のスピーカーの数;
 let caption = {}; // 字幕を保存するオブジェクト
 let captions = []; // 字幕を保存する配列
 let outputText = ''; // ファイルに出力するテキスト
+let options = {}; // オプションを保存するオブジェクト
 
 // URLの変更を監視する関数
 const checkMeetingStatus = () => {
   const currentUrl = window.location.href;
   if (meetUrlPattern.test(currentUrl) && !meetStartTime) {
     meetStartTime = dateTime();
-    chrome.storage.local.set({ meetStartTime }, () => { });
+    chrome.storage.local.set({ meetStartTime });
   }
 };
 
 // 字幕ログの有効/無効を確認する関数
 const logEnabled = () => {
-  chrome.storage.local.get('isLogEnabled', (data) => {
+  chrome.storage.local.get('isLogEnabled', async (data) => {
     // console.log(data.isLogEnabled ? '字幕ログが有効:' : '字幕ログが無効:');
+    options = await getOptions();
     if (data.isLogEnabled) monitorCaptions();
   });
 };
 
 // 字幕の表示を監視する関数
 const monitorCaptions = () => {
+  const endButton = document.querySelector('button.Iootmd.vLQezd');
+  // Meet終了ボタンをクリックした場合
+  if (endButton) {
+    // 既にリスナーが設定されているかを確認し、なければ設定する
+    if (!endButton.dataset.captionLogListener) {
+      endButton.addEventListener('click', () => {
+        if (options?.saveOnEndCall) {
+          endCaptionLoggingAndSave();
+        }
+      });
+      endButton.dataset.captionLogListener = 'true';
+    }
+  }
+
   const captionItems = document.querySelectorAll('.nMcdL.bj4p3b');
   const speakers = document.querySelectorAll('.adE6rb');
 
@@ -76,14 +92,7 @@ const monitorCaptions = () => {
   } else {
     // console.log("字幕が非表示", !isCaptionsSaved);
     if (!isCaptionsSaved) {
-      captions.push(caption);
-
-      captionEndTime = dateTime();
-      chrome.storage.local.set({ captionEndTime });
-      // console.log("字幕が非表示になりました。保存します。", currentText.length);
-      saveCaptions(); // 字幕をファイルに保存
-      isCaptionsSaved = true;
-      prevSpeakerCount = 1;
+      endCaptionLoggingAndSave();
     }
   }
 }
@@ -148,6 +157,10 @@ const saveCaptions = () => {
 
     URL.revokeObjectURL(url); // メモリ解放
 
+    // 状態をリセット
+    isCaptionsSaved = true;
+    prevSpeakerCount = 1;
+    caption = {};
     captions = [];
     outputText = '';
   });
@@ -165,6 +178,28 @@ function dateTime() {
   return formattedDateTime;
 };
 
+/** 字幕のログを終了し，保存する関数 */
+function endCaptionLoggingAndSave() {
+  if (isCaptionsSaved) return; // 既に保存済みの場合は何もしない
+  captions.push(caption);
+  captionEndTime = dateTime();
+  chrome.storage.local.set({ captionEndTime });
+  saveCaptions();
+};
+
+// ページから離脱する際に保存する
+window.addEventListener('beforeunload', async (event) => {
+  if (options?.saveOnTabClose) {
+    endCaptionLoggingAndSave();
+  }
+});
+
+// オプションを読み込む
+async function getOptions() {
+  const { options } = await chrome.storage.local.get('options');
+  return options;
+}
+
 // URL変更監視
 let debounceTimer;
 
@@ -177,4 +212,3 @@ const observer = new MutationObserver(() => {
 observer.observe(document, { childList: true, attributes: true, subtree: true });
 
 checkMeetingStatus(); // 初回チェック
-
