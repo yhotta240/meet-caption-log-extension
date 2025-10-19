@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Google Meet Captions Logger - Google Meet 字幕ログ",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Google Meetの会議中に表示される字幕を保存します",
   "icons": {
     "48": "icons/icon.png"
