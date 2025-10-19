@@ -216,17 +216,20 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('extension-name').textContent = `${manifestData.name}`;
   document.getElementById('extension-version').textContent = `${manifestData.version}`;
   document.getElementById('extension-description').textContent = `${manifestData.description}`;
-  const sites = [
-    { url: 'https://meet.google.com/*', elementId: 'meet-status' }
-  ];
-  // アクセス許可状態を確認
-  sites.forEach(site => {
-    chrome.permissions.contains({
-      origins: [site.url]
-    }, (result) => {
-      const statusElement = document.getElementById(site.elementId);
-      statusElement.textContent = result ? '有効' : '無効';
-    });
+  chrome.permissions.getAll((result) => {
+    document.getElementById('permission-info').textContent = `${result.permissions.join(', ')}`;
+
+    let siteAccess;
+    if (result.origins.length > 0) {
+      if (result.origins.includes("<all_urls>")) {
+        siteAccess = "すべてのサイト";
+      } else {
+        siteAccess = result.origins.join("<br>");
+      }
+    } else {
+      siteAccess = "クリックされた場合のみ";
+    }
+    document.getElementById('site-access').innerHTML = siteAccess;
   });
   chrome.extension.isAllowedIncognitoAccess((isAllowedAccess) => {
     document.getElementById('incognito-enabled').textContent = `${isAllowedAccess ? '有効' : '無効'}`;
