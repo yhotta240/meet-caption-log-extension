@@ -26,6 +26,9 @@ chrome.storage.onChanged.addListener((changes) => {
   if (captionEndTime) {
     messageOutput(captionEndTime.newValue, '字幕ログが終了しました');
   }
+  if (changes.history) {
+    renderHistory(changes.history.newValue || []);
+  }
 });
 
 
@@ -137,6 +140,9 @@ document.getElementById('saveButton').addEventListener('click', () => {
 
 const saveOnEndCall = document.getElementById('saveOnEndCall');
 const saveOnTabClose = document.getElementById('saveOnTabClose');
+const saveHistory = document.getElementById('saveHistory');
+const historyList = document.getElementById('historyList');
+const historyEmpty = document.getElementById('historyEmpty');
 
 // オプションを読み込む
 function loadOptions() {
@@ -144,10 +150,12 @@ function loadOptions() {
     if (data.options) {
       saveOnEndCall.checked = data.options.saveOnEndCall != false;
       saveOnTabClose.checked = data.options.saveOnTabClose != false;
+      saveHistory.checked = data.options.saveHistory === true;
     } else {
       saveOnEndCall.checked = true;
       saveOnTabClose.checked = true;
-      chrome.storage.local.set({ options: { saveOnEndCall: true, saveOnTabClose: true } });
+      saveHistory.checked = false;
+      chrome.storage.local.set({ options: { saveOnEndCall: true, saveOnTabClose: true, saveHistory: false } });
     }
   });
 }
@@ -157,13 +165,95 @@ loadOptions();
 function saveOptions() {
   const options = {
     saveOnEndCall: saveOnEndCall.checked,
-    saveOnTabClose: saveOnTabClose.checked
+    saveOnTabClose: saveOnTabClose.checked,
+    saveHistory: saveHistory.checked,
   };
 
   chrome.storage.local.set({ options }, () => messageOutput(dateTime(), 'オプションが保存されました'));
 }
 saveOnEndCall.addEventListener('change', saveOptions);
 saveOnTabClose.addEventListener('change', saveOptions);
+saveHistory.addEventListener('change', saveOptions);
+
+function renderHistory(items) {
+  if (!historyList) return;
+  historyList.innerHTML = '';
+  if (!items || items.length === 0) {
+    historyEmpty.style.display = 'list-item';
+    historyList.appendChild(historyEmpty);
+    return;
+  }
+  historyEmpty.style.display = 'none';
+
+  // 最新25件を表示
+  items.slice(0, 25).forEach((entry) => {
+    const { savedAt, fileName, fileFormat, content } = entry;
+    const li = document.createElement('li');
+    li.className = 'list-group-item';
+
+    const header = document.createElement('div');
+    header.className = 'd-flex justify-content-between align-items-center mb-1';
+
+    const metaWrapper = document.createElement('div');
+    const metaTitle = document.createElement('span');
+    metaTitle.className = 'fw-bold';
+    const displayName = fileName || 'captions';
+    metaTitle.textContent = `${displayName} (${format[fileFormat] || fileFormat || ''})`;
+    const metaDate = document.createElement('small');
+    metaDate.className = 'text-muted ms-2';
+    metaDate.textContent = dateTimeFromISO(savedAt ? new Date(savedAt) : new Date());
+    metaWrapper.append(metaTitle, metaDate);
+
+    const actionWrapper = document.createElement('div');
+    actionWrapper.className = 'd-flex gap-2';
+
+    const dlBtn = document.createElement('button');
+    dlBtn.type = 'button';
+    dlBtn.className = 'btn btn-sm btn-outline-primary';
+    dlBtn.textContent = 'ダウンロード';
+    dlBtn.addEventListener('click', () => downloadHistory(entry));
+    actionWrapper.appendChild(dlBtn);
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'btn btn-sm btn-outline-danger';
+    delBtn.textContent = '削除';
+    delBtn.addEventListener('click', () => deleteHistory(savedAt));
+    actionWrapper.appendChild(delBtn);
+
+    header.append(metaWrapper, actionWrapper);
+
+    const preview = document.createElement('div');
+    preview.className = 'small text-muted';
+    preview.textContent = buildPreview(content);
+
+    const full = document.createElement('pre');
+    full.className = 'small mt-2 mb-0';
+    full.style.whiteSpace = 'pre-wrap';
+    full.style.display = 'none';
+    full.textContent = content;
+
+    const moreLink = document.createElement('button');
+    moreLink.type = 'button';
+    moreLink.className = 'btn btn-link btn-sm ps-0';
+    moreLink.textContent = 'もっと見る';
+    moreLink.addEventListener('click', () => {
+      const expanded = full.style.display === 'block';
+      full.style.display = expanded ? 'none' : 'block';
+      preview.style.display = expanded ? 'block' : 'none';
+      moreLink.textContent = expanded ? 'もっと見る' : '閉じる';
+    });
+
+    li.append(header, preview, moreLink, full);
+    historyList.appendChild(li);
+  });
+}
+
+function loadHistory() {
+  chrome.storage.local.get('history', ({ history }) => {
+    renderHistory(history || []);
+  });
+}
 
 const messageDiv = document.getElementById('message');
 function messageOutput(datetime, message) {
@@ -267,6 +357,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const githubLink = document.getElementById('github-link');
   if (githubLink) clickURL(githubLink);
 
+  loadHistory();
 });
 
 function clickURL(link) {
@@ -277,4 +368,50 @@ function clickURL(link) {
       chrome.tabs.create({ url });
     });
   }
+}
+
+function dateTimeFromISO(dateObj) {
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const hours = String(dateObj.getHours()).padStart(2, '0');
+  const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
+}
+
+function buildPreview(content = '') {
+  const lines = content.split(/\r?\n/).filter((l) => l.trim() !== '');
+  const previewLines = lines.slice(0, 3).map((l) => l.replace(/\s+/g, ' '));
+  return previewLines.join(' / ') || '内容なし';
+}
+
+function resolveExtension(mime) {
+  const map = {
+    'text/plain': '.txt',
+    'text/csv': '.csv',
+    'text/markdown': '.md',
+  };
+  return map[mime] || '.txt';
+}
+
+function downloadHistory({ fileName = 'captions', fileFormat = 'text/plain', content = '' }) {
+  const blob = new Blob([content], { type: fileFormat });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName.endsWith(resolveExtension(fileFormat)) ? fileName : `${fileName}${resolveExtension(fileFormat)}`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function deleteHistory(savedAt) {
+  chrome.storage.local.get('history', ({ history = [] }) => {
+    const updatedHistory = history.filter((entry) => entry.savedAt !== savedAt);
+    chrome.storage.local.set({ history: updatedHistory }, () => {
+      loadHistory();
+      messageOutput(dateTime(), '履歴を削除しました');
+    });
+  });
 }

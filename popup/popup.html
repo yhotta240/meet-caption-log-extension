@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Google Meet Captions Logger</title>
-  <!-- <link rel="stylesheet" href="popup.css"> -->
   <link rel="stylesheet" href="bootstrap-5.3.0-dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="popup.css">
 </head>
@@ -44,6 +43,10 @@
     <li class="nav-item " role="presentation">
       <a class="nav-link active py-1 p-md-2" id="settings-tab" data-bs-toggle="tab" href="#settings" role="tab"
         aria-controls="settings " aria-selected="true">設定</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link py-1 p-md-2" id="history-tab" data-bs-toggle="tab" href="#history" role="tab"
+        aria-controls="history" aria-selected="false">履歴</a>
     </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link py-1 p-md-2" id="document-tab" data-bs-toggle="tab" href="#document" role="tab"
@@ -124,9 +127,24 @@ meet開始時刻    : {meet開始時刻}
             <input class="form-check-input" type="checkbox" id="saveOnTabClose">
             <label class="form-check-label" for="saveOnTabClose">タブを閉じた時に保存する</label>
           </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="saveHistory">
+            <label class="form-check-label" for="saveHistory">履歴を保存する（最大25件）</label>
+          </div>
         </div>
       </fieldset>
+    </div>
 
+    <!-- 履歴 -->
+    <div class="tab-pane fade mt-2 mx-2" id="history" role="tabpanel" style="margin-bottom: 200px;"
+      aria-labelledby="history-tab">
+      <div class="d-flex justify-content-between align-items-center pt-3 ps-2 mb-2">
+        <h5 class="m-0">保存履歴</h5>
+        <small class="text-muted">最大25件</small>
+      </div>
+      <ul class="list-group" id="historyList">
+        <li class="list-group-item text-muted" id="historyEmpty">履歴がまだありません</li>
+      </ul>
     </div>
 
     <!-- ドキュメント -->
