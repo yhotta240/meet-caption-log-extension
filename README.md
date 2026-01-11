@@ -1,13 +1,19 @@
-## Google Meet の会議中に表示される字幕を保存する Chrome 拡張機能
+# Google Meet 字幕ログ
 
-### Google Meet の会議中に表示される字幕を保存します
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/ngbmoalopgfhbfkjidlblfeheehaniie?label=Chrome%20Web%20Store)](https://chrome.google.com/webstore/detail/ngbmoalopgfhbfkjidlblfeheehaniie)
+[![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/ngbmoalopgfhbfkjidlblfeheehaniie?label=Users)](https://chrome.google.com/webstore/detail/ngbmoalopgfhbfkjidlblfeheehaniie)
+[![Chrome Web Store Rating](https://img.shields.io/chrome-web-store/rating/ngbmoalopgfhbfkjidlblfeheehaniie?label=Rating)](https://chrome.google.com/webstore/detail/ngbmoalopgfhbfkjidlblfeheehaniie)
 
-「Google Meet 字幕ログ」は，Google Meet 会議中に表示されるリアルタイム字幕を記録し，簡単にテキストファイルとして保存できる拡張機能です．会議に参加中，字幕のオン・オフで自動的にログを作成し，保存することが可能です．この拡張機能は，特に議事録作成や講義の記録など様々な場面で役立ちます．
+Google Meet の会議中に表示される字幕を保存する Chrome 拡張機能
 
-#### 拡張機能の主な特徴:
+## 概要
+
+Google Meet 会議中に表示されるリアルタイム字幕を記録し，簡単にテキストファイルとして保存できる拡張機能です．会議に参加中，字幕のオン・オフで自動的にログを作成し，保存することが可能です．この拡張機能は，特に議事録作成や講義の記録など様々な場面で役立ちます．
+
+## 特徴
 
 - 字幕をリアルタイムで記録<br>
-  「Google Meet 字幕ログ」拡張機能は，Google Meet の字幕が表示されたタイミングでリアルタイムにその内容を取得し，保存します．
+  Google Meet の字幕が表示されたタイミングでリアルタイムにその内容を取得し，保存します．
 
 - ログの保存機能<br>
   ユーザは，自分の好みに合わせて字幕ログをローカルファイルとして保存できます．ファイルの形式やヘッダーに記載する情報（日時や会議名など）をカスタマイズできます．
@@ -15,14 +21,17 @@
 - 字幕データを利用した多用途な活用<br>
   保存した字幕データは，さまざまな用途に活用可能です．たとえば，ChatGPT などの AI モデルに字幕データを入力して要約してもらったり，会議の内容をさらに深く分析したりするなど多様なニーズに応えられます．
 
-#### 注意点:
+## 注意点
 
 - 字幕の精度に依存<br>
   この拡張機能は，Google Meet で提供される字幕の精度に依存しています．Google Meet の音声認識精度により，字幕の内容が正確でない場合もありますので，その点はご注意ください．
 
 この拡張機能をインストールすることで，Google Meet における会議の内容を効率的に記録でき，確認にかかる手間を大幅に軽減できます．ただし，字幕の精度には限界があるため，その点に留意してご利用ください．
 
+## 使い方
 
-## 拡張機能の使い方
+[拡張機能の使い方](./docs/usage.md) をご覧ください
 
- 使い方は，[拡張機能の使い方](./docs/usage.md) をご覧ください
+## 作者
+
+- yhotta240 (https://github.com/yhotta240)

@@ -118,7 +118,7 @@ meet開始時刻    : {meet開始時刻}
         <div class="col-sm-10">
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="saveOnEndCall">
-            <label class="form-check-label" for="saveOnEndCall">会議の通話終了ボタンを押した時に保存する</label>
+            <label class="form-check-label" for="saveOnEndCall">通話終了ボタンを押した時に保存する</label>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="checkbox" id="saveOnTabClose">
@@ -146,15 +146,15 @@ meet開始時刻    : {meet開始時刻}
               <div>
                 <h5>Google Meetの会議中に表示される字幕を保存します</h5>
                 <p>
-                  「Google Meet 字幕ログ」は，Google Meet
+                  Google Meet
                   会議中に表示されるリアルタイム字幕を記録し，簡単にテキストファイルとして保存できる拡張機能です．会議に参加中，字幕のオン・オフで自動的にログを作成し，保存することが可能です．この拡張機能は，特に議事録作成や講義の記録など様々な場面で役立ちます．
                 </p>
                 <p class="mb-1 fw-bold">拡張機能の主な特徴:</p>
                 <ol>
                   <li class="mb-1">
                     字幕をリアルタイムで記録<br>
-                    「Google Meet 字幕ログ」拡張機能は，Google
-                    Meetの字幕が表示されたタイミングでリアルタイムにその内容を取得し，保存します．</li>
+                    Google Meetの字幕が表示されたタイミングでリアルタイムにその内容を取得し，保存します．
+                  </li>
                   <li class="mb-1">
                     ログの保存機能<br>
                     ユーザは，自分の好みに合わせて字幕ログをローカルファイルとして保存できます．ファイルの形式やヘッダーに記載する情報（日時や会議名など）をカスタマイズできます．
@@ -169,11 +169,6 @@ meet開始時刻    : {meet開始時刻}
                   <li>
                     字幕の精度に依存<br>
                     この拡張機能は，Google Meetで提供される字幕の精度に依存しています．Google Meetの音声認識精度により，字幕の内容が正確でない場合もありますので，その点はご注意ください．
-                  </li>
-                  <li>
-                    その他<br>
-                    現在，この拡張機能はGoogle
-                    Meetで一方的に話している状況を想定しており，現時点では誰が話しているかを記録する機能は実装していません．しかし，今後はユーザの要望に応じて機能を追加していく予定です．
                   </li>
                 </ul>
                 この拡張機能をインストールすれば，Google Meet での会議を効率よく記録し，後から内容を確認する手間を大幅に軽減できます．ただし，字幕の精度に留意しながらご利用ください．
@@ -229,20 +224,24 @@ meet開始時刻    : {meet開始時刻}
                         <tr>
                           <th>テンプレート変数</th>
                           <th>説明</th>
+                          <th>フォーマット例</th>
                         </tr>
                       </thead>
                       <tbody class="table-group-divider">
                         <tr>
                           <td>{meet開始時刻}</td>
                           <td>会議の開始時刻</td>
+                          <td>2026-01-01 10:00</td>
                         </tr>
                         <tr>
                           <td>{字幕ログ開始時刻}</td>
                           <td>字幕ログの記録開始時刻</td>
+                          <td>2026-01-01 10:05</td>
                         </tr>
                         <tr>
                           <td>{字幕ログ終了時刻}</td>
                           <td>字幕ログの記録終了時刻</td>
+                          <td>2026-01-01 11:00</td>
                         </tr>
                       </tbody>
                     </table>
@@ -265,6 +264,10 @@ meet開始時刻    : {meet開始時刻}
                   class="img-fluid m-auto py-3" class="img-fluid m-auto" style="max-height: 280px;"
                   alt="Captions download">
               </ol>
+              <div class="alert alert-info" role="alert">
+                <span>ℹ️</span>
+                オプションで「通話終了ボタンを押した時に保存する」または「タブを閉じた時に保存する」を有効にしておくと，字幕をオフにしなくても，自動的に字幕ログが保存されます．
+              </div>
               </p>
             </div>
           </div>
@@ -279,6 +282,7 @@ meet開始時刻    : {meet開始時刻}
         <h5 class="pt-3 ps-2 mb-2">更新履歴</h5>
         <li class="list-group-item">
           <strong>v1.7.0</strong>
+          <span class="badge bg-primary">最新</span>
           <ul class="small mt-1">
             <li>Meet終了時とタブ離脱時の自動保存オプションを追加</li>
             <li>ドキュメントと情報タブの修正</li>
@@ -287,22 +291,16 @@ meet開始時刻    : {meet開始時刻}
           <strong>v1.6.0</strong>
           <ul class="small mt-1">
             <li>Markdown形式での出力機能を追加</li>
-            <li>ファイルダウンロード後のメモリ解放処理を追加</li>
+            <li>ファイル保存後のメモリ使用量を最適化</li>
           </ul>
         </li>
         <li class="list-group-item">
-          <strong>v1.5.1</strong>
-          <ul class="small mt-1">
-            <li>CSV出力の不具合を修正</li>
-            <li>ファイル形式の処理をリファクタリング</li>
-          </ul>
-        </li>
-        <li class="list-group-item">
-          <strong>v1.5.0</strong>
+          <strong>v1.5.0 - v1.5.1</strong>
           <ul class="small mt-1">
             <li>メッセージパネルを修正</li>
             <li>ポップアップを新しいタブで開く機能を追加</li>
             <li>保存処理を改善し，話者と内容をより正確に記録</li>
+            <li>CSV出力の不具合を修正</li>
           </ul>
         </li>
         <li class="list-group-item">
