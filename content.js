@@ -238,8 +238,10 @@ const saveCaptions = () => {
       outputText += `\n${caption.speaker}:\n ${caption.text}\n`;
     });
 
+    const fileContent = headerText + outputText + '\n';
+
     // ファイル作成
-    const blob = new Blob([headerText + outputText + '\n'], { type: fileFormat });
+    const blob = new Blob([fileContent], { type: fileFormat });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -256,6 +258,20 @@ const saveCaptions = () => {
     caption = {};
     captions = [];
     outputText = '';
+
+    // 履歴保存（最大25件）
+    if (options?.saveHistory) {
+      chrome.storage.local.get('history', ({ history = [] }) => {
+        const entry = {
+          savedAt: new Date().toISOString(),
+          fileName,
+          fileFormat,
+          content: fileContent,
+        };
+        const updatedHistory = [entry, ...(history || [])].slice(0, 25);
+        chrome.storage.local.set({ history: updatedHistory });
+      });
+    }
   });
 };
 
