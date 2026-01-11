@@ -39,8 +39,99 @@ const logEnabled = () => {
   chrome.storage.local.get('isLogEnabled', async (data) => {
     // console.log(data.isLogEnabled ? '字幕ログが有効:' : '字幕ログが無効:');
     options = await getOptions();
-    if (data.isLogEnabled) monitorCaptions();
+    if (data.isLogEnabled) {
+      monitorCaptions();
+    } else {
+      // 字幕ログが無効の場合，バッジを非表示にする
+      const badge = document.querySelector('#captionEnabledBadge');
+      if (badge) {
+        badge.remove();
+      }
+    }
   });
+};
+
+// バッジのスタイル定義
+const BADGE_STYLES = {
+  keyframes: `
+    @keyframes badgePulseYellow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(251, 188, 4, 0.7); }
+      50% { box-shadow: 0 0 0 3px rgba(251, 188, 4, 0.3); }
+    }
+    @keyframes badgePulseGreen {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 150, 136, 0.7); }
+      50% { box-shadow: 0 0 0 3px rgba(0, 150, 136, 0.3); }
+    }
+  `,
+  base: `
+    #captionEnabledBadge {
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      z-index: 1000;
+    }
+  `,
+  yellow: `
+    #captionEnabledBadge.yellow-badge {
+      background: linear-gradient(135deg, #fbbc04 0%, #f9ab00 100%);
+      animation: badgePulseYellow 2s infinite;
+      top: -2px;
+      right: -2px;
+    }
+  `,
+  green: `
+    #captionEnabledBadge.green-badge {
+      background: linear-gradient(135deg, #00b600 0%, #00b900 100%);
+      animation: badgePulseGreen 2s infinite;
+      top: -2px;
+      right: -2px;
+    }
+  `,
+};
+
+const addBadgeAnimationStyles = () => {
+  if (!document.querySelector('#badgeAnimationStyles')) {
+    const style = document.createElement('style');
+    style.id = 'badgeAnimationStyles';
+    style.textContent = `${BADGE_STYLES.keyframes}${BADGE_STYLES.base}${BADGE_STYLES.yellow}${BADGE_STYLES.green}`;
+    document.head.appendChild(style);
+  }
+};
+
+const createBadge = () => {
+  const badge = document.createElement('span');
+  badge.id = 'captionEnabledBadge';
+  badge.className = 'yellow-badge';
+  badge.title = '字幕ログ待機中';
+  return badge;
+};
+
+const updateBadge = (badge, isVisible) => {
+  if (isVisible) {
+    badge.className = 'green-badge';
+    badge.title = '字幕ログ記録中';
+  } else {
+    badge.className = 'yellow-badge';
+    badge.title = '字幕ログ待機中';
+  }
+};
+
+// バッジを表示または更新する関数
+const displayBadge = (isVisible) => {
+  const captionBtn = document.querySelector('button[jsname="r8qRAd"]');
+  let badge = document.getElementById('captionEnabledBadge');
+
+  // バッジがなければ追加
+  if (!badge && captionBtn) {
+    badge = createBadge();
+    captionBtn.appendChild(badge);
+  }
+
+  // バッジがあれば色を更新
+  if (badge) {
+    updateBadge(badge, isVisible);
+  }
 };
 
 // 字幕の表示を監視する関数
@@ -89,11 +180,13 @@ const monitorCaptions = () => {
 
     prevSpeakerCount = speakers.length;
 
+    displayBadge(true); // バッジを緑色に変更
   } else {
     // console.log("字幕が非表示", !isCaptionsSaved);
     if (!isCaptionsSaved) {
       endCaptionLoggingAndSave();
     }
+    displayBadge(false); // バッジを黄色に戻す
   }
 }
 
@@ -211,4 +304,5 @@ const observer = new MutationObserver(() => {
 });
 observer.observe(document, { childList: true, attributes: true, subtree: true });
 
+addBadgeAnimationStyles(); // アニメーションスタイルを初期化
 checkMeetingStatus(); // 初回チェック
