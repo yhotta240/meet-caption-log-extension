@@ -15,42 +15,6 @@ const format = {
 // UTF-8 BOM
 const bom = '\uFEFF';
 
-let isCaptionsSaved = true; // 保存が行われたかを記録するフラグ
-let meetStartTime = null; // {meet開始時刻} に対応
-let captionStartTime = null; // {字幕ログ開始時刻} に対応
-let captionEndTime; // {字幕ログ終了時刻} に対応
-let prevSpeakerCount = 1; // 前回のスピーカーの数;
-let caption = {}; // 字幕を保存するオブジェクト
-let captions = []; // 字幕を保存する配列
-let outputText = ''; // ファイルに出力するテキスト
-let options = {}; // オプションを保存するオブジェクト
-
-// URLの変更を監視する関数
-const checkMeetingStatus = () => {
-  const currentUrl = window.location.href;
-  if (meetUrlPattern.test(currentUrl) && !meetStartTime) {
-    meetStartTime = dateTime();
-    chrome.storage.local.set({ meetStartTime });
-  }
-};
-
-// 字幕ログの有効/無効を確認する関数
-const logEnabled = () => {
-  chrome.storage.local.get('isLogEnabled', async (data) => {
-    // console.log(data.isLogEnabled ? '字幕ログが有効:' : '字幕ログが無効:');
-    options = await getOptions();
-    if (data.isLogEnabled) {
-      monitorCaptions();
-    } else {
-      // 字幕ログが無効の場合，バッジを非表示にする
-      const badge = document.querySelector('#captionEnabledBadge');
-      if (badge) {
-        badge.remove();
-      }
-    }
-  });
-};
-
 // バッジのスタイル定義
 const BADGE_STYLES = {
   keyframes: `
@@ -90,6 +54,42 @@ const BADGE_STYLES = {
   `,
 };
 
+let isCaptionsSaved = true; // 保存が行われたかを記録するフラグ
+let meetStartTime = null; // {meet開始時刻} に対応
+let captionStartTime = null; // {字幕ログ開始時刻} に対応
+let captionEndTime = null; // {字幕ログ終了時刻} に対応
+let prevSpeakerCount = 1; // 前回のスピーカーの数;
+let caption = {}; // 字幕を保存するオブジェクト
+let captions = []; // 字幕を保存する配列
+let outputText = ''; // ファイルに出力するテキスト
+let options = {}; // オプションを保存するオブジェクト
+
+// URLの変更を監視する関数
+const checkMeetingStatus = () => {
+  const currentUrl = window.location.href;
+  if (meetUrlPattern.test(currentUrl) && !meetStartTime) {
+    meetStartTime = dateTime();
+    chrome.storage.local.set({ meetStartTime });
+  }
+};
+
+// 字幕ログの有効/無効を確認する関数
+const logEnabled = () => {
+  chrome.storage.local.get('isLogEnabled', async (data) => {
+    // console.log(data.isLogEnabled ? '字幕ログが有効:' : '字幕ログが無効:');
+    options = await getOptions();
+    if (data.isLogEnabled) {
+      monitorCaptions();
+    } else {
+      // 字幕ログが無効の場合，バッジを非表示にする
+      const badge = document.querySelector('#captionEnabledBadge');
+      if (badge) {
+        badge.remove();
+      }
+    }
+  });
+};
+
 const addBadgeAnimationStyles = () => {
   if (!document.querySelector('#badgeAnimationStyles')) {
     const style = document.createElement('style');
@@ -99,28 +99,28 @@ const addBadgeAnimationStyles = () => {
   }
 };
 
-const createBadge = () => {
-  const badge = document.createElement('span');
-  badge.id = 'captionEnabledBadge';
-  badge.className = 'yellow-badge';
-  badge.title = '字幕ログ待機中';
-  return badge;
-};
-
-const updateBadge = (badge, isVisible) => {
-  if (isVisible) {
-    badge.className = 'green-badge';
-    badge.title = '字幕ログ記録中';
-  } else {
-    badge.className = 'yellow-badge';
-    badge.title = '字幕ログ待機中';
-  }
-};
-
 // バッジを表示または更新する関数
 const displayBadge = (isVisible) => {
+  const createBadge = () => {
+    const badge = document.createElement('span');
+    badge.id = 'captionEnabledBadge';
+    badge.className = 'yellow-badge';
+    badge.title = '字幕ログ待機中';
+    return badge;
+  };
+
+  const updateBadge = (badge, isVisible) => {
+    if (isVisible) {
+      badge.className = 'green-badge';
+      badge.title = '字幕ログ記録中';
+    } else {
+      badge.className = 'yellow-badge';
+      badge.title = '字幕ログ待機中';
+    }
+  };
+
   const captionBtn = document.querySelector('button[jsname="r8qRAd"]');
-  let badge = document.getElementById('captionEnabledBadge');
+  let badge = document.querySelector('#captionEnabledBadge');
 
   // バッジがなければ追加
   if (!badge && captionBtn) {
