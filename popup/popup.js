@@ -184,7 +184,6 @@ function renderHistory(items) {
   if (!historyList) return;
   historyList.innerHTML = '';
   if (!items || items.length === 0) {
-    historyEmpty.style.display = 'list-item';
     historyList.appendChild(historyEmpty);
     return;
   }
