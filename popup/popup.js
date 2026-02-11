@@ -143,6 +143,7 @@ const saveOnTabClose = document.getElementById('saveOnTabClose');
 const saveHistory = document.getElementById('saveHistory');
 const historyList = document.getElementById('historyList');
 const historyEmpty = document.getElementById('historyEmpty');
+const showCaptionsOnStart = document.getElementById('showCaptionsOnStart');
 
 // オプションを読み込む
 function loadOptions() {
@@ -151,11 +152,13 @@ function loadOptions() {
       saveOnEndCall.checked = data.options.saveOnEndCall != false;
       saveOnTabClose.checked = data.options.saveOnTabClose != false;
       saveHistory.checked = data.options.saveHistory === true;
+      showCaptionsOnStart.checked = data.options.showCaptionsOnStart === true;
     } else {
       saveOnEndCall.checked = true;
       saveOnTabClose.checked = true;
       saveHistory.checked = false;
-      chrome.storage.local.set({ options: { saveOnEndCall: true, saveOnTabClose: true, saveHistory: false } });
+      showCaptionsOnStart.checked = false;
+      chrome.storage.local.set({ options: { saveOnEndCall: true, saveOnTabClose: true, saveHistory: false, showCaptionsOnStart: false } });
     }
   });
 }
@@ -167,6 +170,7 @@ function saveOptions() {
     saveOnEndCall: saveOnEndCall.checked,
     saveOnTabClose: saveOnTabClose.checked,
     saveHistory: saveHistory.checked,
+    showCaptionsOnStart: showCaptionsOnStart.checked,
   };
 
   chrome.storage.local.set({ options }, () => messageOutput(dateTime(), 'オプションが保存されました'));
@@ -174,6 +178,7 @@ function saveOptions() {
 saveOnEndCall.addEventListener('change', saveOptions);
 saveOnTabClose.addEventListener('change', saveOptions);
 saveHistory.addEventListener('change', saveOptions);
+showCaptionsOnStart.addEventListener('change', saveOptions);
 
 function renderHistory(items) {
   if (!historyList) return;
@@ -291,7 +296,6 @@ function loadSettings() {
       // messageDiv.innerHTML = '<p class="m-0">' + data.settings.message[0] + ' ' + data.settings.message[1] + '</p>'; // 保存されたログを表示
     }
 
-    // logEnabledの値を取得
     const isLogEnabled = data.isLogEnabled || false; // デフォルトはfalse
     document.getElementById('captionLogLabel').checked = isLogEnabled; // チェックボックスの状態を設定
     // console.log('字幕ログが有効:', isLogEnabled);

@@ -79,6 +79,9 @@ const logEnabled = () => {
     // console.log(data.isLogEnabled ? '字幕ログが有効:' : '字幕ログが無効:');
     options = await getOptions();
     if (data.isLogEnabled) {
+      if (options?.showCaptionsOnStart) {
+        displayCaptions();
+      }
       monitorCaptions();
     } else {
       // 字幕ログが無効の場合，バッジを非表示にする
@@ -99,7 +102,6 @@ const addBadgeAnimationStyles = () => {
   }
 };
 
-// バッジを表示または更新する関数
 const displayBadge = (isVisible) => {
   const createBadge = () => {
     const badge = document.createElement('span');
@@ -131,6 +133,17 @@ const displayBadge = (isVisible) => {
   // バッジがあれば色を更新
   if (badge) {
     updateBadge(badge, isVisible);
+  }
+};
+
+const displayCaptions = () => {
+  const captionContainer = document.querySelector('[jscontroller="D1tHje"]');
+  if (captionContainer.children.length === 0) {
+    const captionBtn = document.querySelector('button[jsname="r8qRAd"]');
+    if (captionBtn && !captionContainer.classList.contains('caption-button-clicked')) {
+      captionContainer.classList.add('caption-button-clicked');
+      captionBtn.click();
+    }
   }
 };
 
