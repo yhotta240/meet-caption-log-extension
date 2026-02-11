@@ -137,11 +137,11 @@ const displayBadge = (isVisible) => {
 };
 
 const displayCaptions = () => {
-  const captionBtn = document.querySelector('button[jsname="r8qRAd"]');
-  if (captionBtn && !captionBtn.classList.contains('caption-button-clicked')) {
-    const isCaptionsVisible = document.querySelector('.nMcdL.bj4p3b') !== null;
-    if (!isCaptionsVisible) {
-      captionBtn.classList.add('caption-button-clicked');
+  const captionContainer = document.querySelector('[jscontroller="D1tHje"]');
+  if (captionContainer.children.length === 0) {
+    const captionBtn = document.querySelector('button[jsname="r8qRAd"]');
+    if (captionBtn && !captionContainer.classList.contains('caption-button-clicked')) {
+      captionContainer.classList.add('caption-button-clicked');
       captionBtn.click();
     }
   }
