@@ -1,4 +1,3 @@
-
 // 会議中のURLの正規表現
 const meetUrlPattern = /https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}/;
 
@@ -63,46 +62,64 @@ let caption = {}; // 字幕を保存するオブジェクト
 let captions = []; // 字幕を保存する配列
 let outputText = ''; // ファイルに出力するテキスト
 let options = {}; // オプションを保存するオブジェクト
+let isEnabledLog = false; // 字幕ログの有効/無効状態
 
-// URLの変更を監視する関数
-const checkMeetingStatus = () => {
-  const currentUrl = window.location.href;
-  if (meetUrlPattern.test(currentUrl) && !meetStartTime) {
-    meetStartTime = dateTime();
-    chrome.storage.local.set({ meetStartTime });
-  }
-};
-
-// 字幕ログの有効/無効を確認する関数
-const logEnabled = () => {
-  chrome.storage.local.get('isLogEnabled', async (data) => {
-    // console.log(data.isLogEnabled ? '字幕ログが有効:' : '字幕ログが無効:');
-    options = await getOptions();
-    if (data.isLogEnabled) {
-      if (options?.showCaptionsOnStart) {
-        displayCaptions();
-      }
-      monitorCaptions();
-    } else {
-      // 字幕ログが無効の場合，バッジを非表示にする
-      const badge = document.querySelector('#captionEnabledBadge');
-      if (badge) {
-        badge.remove();
-      }
-    }
-  });
-};
-
-const addBadgeAnimationStyles = () => {
+function addBadgeAnimationStyles() {
   if (!document.querySelector('#badgeAnimationStyles')) {
     const style = document.createElement('style');
     style.id = 'badgeAnimationStyles';
     style.textContent = `${BADGE_STYLES.keyframes}${BADGE_STYLES.base}${BADGE_STYLES.yellow}${BADGE_STYLES.green}`;
     document.head.appendChild(style);
   }
-};
+}
 
-const displayBadge = (isVisible) => {
+function checkMeetingStatus() {
+  const currentUrl = window.location.href;
+  if (meetUrlPattern.test(currentUrl) && !meetStartTime) {
+    meetStartTime = dateTime();
+    chrome.storage.local.set({ meetStartTime });
+  }
+}
+
+async function loadSettings() {
+  isEnabledLog = await getEnabledLog();
+  options = await getOptions();
+}
+
+async function getEnabledLog() {
+  try {
+    const { isLogEnabled } = await chrome.storage.local.get('isLogEnabled');
+    return isLogEnabled;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function getOptions() {
+  try {
+    const { options } = await chrome.storage.local.get('options');
+    return options;
+  } catch (error) {
+    return null;
+  }
+}
+
+async function handleLogState() {
+  if (isEnabledLog) {
+    if (options?.showCaptionsOnStart) {
+      displayCaptions();
+    }
+    monitorCaptions();
+  } else {
+    const badge = document.querySelector('#captionEnabledBadge');
+    if (badge) {
+      badge.remove();
+    }
+  }
+}
+
+// DOM操作
+function displayBadge(isVisible) {
   const createBadge = () => {
     const badge = document.createElement('span');
     badge.id = 'captionEnabledBadge';
@@ -124,35 +141,30 @@ const displayBadge = (isVisible) => {
   const captionBtn = document.querySelector('button[jsname="r8qRAd"]');
   let badge = document.querySelector('#captionEnabledBadge');
 
-  // バッジがなければ追加
   if (!badge && captionBtn) {
     badge = createBadge();
     captionBtn.appendChild(badge);
   }
 
-  // バッジがあれば色を更新
   if (badge) {
     updateBadge(badge, isVisible);
   }
-};
+}
 
-const displayCaptions = () => {
+function displayCaptions() {
   const captionContainer = document.querySelector('[jscontroller="D1tHje"]');
-  if (captionContainer.children.length === 0) {
+  if (captionContainer && captionContainer.children.length === 0) {
     const captionBtn = document.querySelector('button[jsname="r8qRAd"]');
     if (captionBtn && !captionContainer.classList.contains('caption-button-clicked')) {
       captionContainer.classList.add('caption-button-clicked');
       captionBtn.click();
     }
   }
-};
+}
 
-// 字幕の表示を監視する関数
-const monitorCaptions = () => {
+function monitorCaptions() {
   const endButton = document.querySelector('button.Iootmd.vLQezd');
-  // Meet終了ボタンをクリックした場合
   if (endButton) {
-    // 既にリスナーが設定されているかを確認し、なければ設定する
     if (!endButton.dataset.captionLogListener) {
       endButton.addEventListener('click', () => {
         if (options?.saveOnEndCall) {
@@ -172,13 +184,11 @@ const monitorCaptions = () => {
       captionStartTime = dateTime();
       captionEndTime = null;
       chrome.storage.local.set({ captionStartTime, captionEndTime }, () => { });
-    };
+    }
 
     const speakerText = speakers[speakers.length - 1].textContent;
     const captionText = captionItems[captionItems.length - 1].querySelector('.ygicle.VbkSUe').textContent;
-    // console.log("スピーカー", speakerText, "字幕", captionText);
 
-    // 前回のスピーカー数と現在のスピーカー数が異なる場合
     if (prevSpeakerCount !== speakers.length) {
       captions.push(caption);
     }
@@ -189,22 +199,19 @@ const monitorCaptions = () => {
       speaker: speakerText,
       text: captionText,
     };
-    // console.log("caption", caption);
 
     prevSpeakerCount = speakers.length;
 
-    displayBadge(true); // バッジを緑色に変更
+    displayBadge(true);
   } else {
-    // console.log("字幕が非表示", !isCaptionsSaved);
     if (!isCaptionsSaved) {
       endCaptionLoggingAndSave();
     }
-    displayBadge(false); // バッジを黄色に戻す
+    displayBadge(false);
   }
 }
 
-// 字幕を保存する関数
-const saveCaptions = () => {
+function saveCaptions() {
   chrome.storage.local.get('settings', (data) => {
     let fileName, fileFormat, headerText;
 
@@ -225,7 +232,6 @@ const saveCaptions = () => {
       }
 
     } else {
-
       // デフォルト設定
       fileName = 'captions';
       fileFormat = 'text/plain';
@@ -237,7 +243,6 @@ const saveCaptions = () => {
         `字幕ログ終了時刻: {字幕ログ終了時刻}\n` +
         `---\n`;
     }
-
 
     headerText = headerText
       .replace(/{meet開始時刻}/g, meetStartTime)
@@ -286,28 +291,15 @@ const saveCaptions = () => {
       });
     }
   });
-};
+}
 
-function dateTime() {
-  // 現在の日付と時刻を取得
-  const now = new Date();
-  const year = now.getFullYear();           // 年
-  const month = String(now.getMonth() + 1).padStart(2, '0'); // 月
-  const day = String(now.getDate()).padStart(2, '0');         // 日
-  const hours = String(now.getHours()).padStart(2, '0');       // 時
-  const minutes = String(now.getMinutes()).padStart(2, '0');   // 分
-  const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}`;
-  return formattedDateTime;
-};
-
-/** 字幕のログを終了し，保存する関数 */
 function endCaptionLoggingAndSave() {
   if (isCaptionsSaved) return; // 既に保存済みの場合は何もしない
   captions.push(caption);
   captionEndTime = dateTime();
   chrome.storage.local.set({ captionEndTime });
   saveCaptions();
-};
+}
 
 // ページから離脱する際に保存する
 window.addEventListener('beforeunload', async (event) => {
@@ -316,22 +308,33 @@ window.addEventListener('beforeunload', async (event) => {
   }
 });
 
-// オプションを読み込む
-async function getOptions() {
-  const { options } = await chrome.storage.local.get('options');
-  return options;
-}
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (namespace === 'local' && (changes.isLogEnabled || changes.options)) {
+    isEnabledLog = changes.isLogEnabled ? changes.isLogEnabled.newValue : isEnabledLog;
+    options = changes.options ? changes.options.newValue : options;
+  }
+});
 
-// URL変更監視
 let debounceTimer;
 
 const observer = new MutationObserver(() => {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
-    logEnabled();
+    handleLogState();
   }, 200);
 });
 observer.observe(document, { childList: true, attributes: true, subtree: true });
 
-addBadgeAnimationStyles(); // アニメーションスタイルを初期化
-checkMeetingStatus(); // 初回チェック
+function dateTime() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
+}
+
+addBadgeAnimationStyles();
+checkMeetingStatus();
+loadSettings();
