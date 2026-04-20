@@ -138,7 +138,7 @@ function displayBadge(isVisible) {
     }
   };
 
-  const captionBtn = document.querySelector('button[jsname="r8qRAd"]');
+  const captionBtn = document.querySelector('button[jsname="RrG0hf"]');
   let badge = document.querySelector('#captionEnabledBadge');
 
   if (!badge && captionBtn) {
@@ -154,7 +154,7 @@ function displayBadge(isVisible) {
 function displayCaptions() {
   const captionContainer = document.querySelector('[jscontroller="D1tHje"]');
   if (captionContainer && captionContainer.children.length === 0) {
-    const captionBtn = document.querySelector('button[jsname="r8qRAd"]');
+    const captionBtn = document.querySelector('button[jsname="RrG0hf"]');
     if (captionBtn && !captionContainer.classList.contains('caption-button-clicked')) {
       captionContainer.classList.add('caption-button-clicked');
       captionBtn.click();
