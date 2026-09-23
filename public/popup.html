@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="title"></title>
+  <script src="popup.js"></script>
+</head>
+
+<body class="container-md pb-3 p-2 " id="popup-body">
+  <div id="header">
+    <div class="d-flex justify-content-between align-items-center p-1">
+      <div class="d-flex justify-content-center align-items-center">
+        <img src="/icons/icon.png" class="my-auto mx-2" alt="message clear button" height="24">
+        <h1 class="my-auto fs-3" id="title-header"></h1>
+      </div>
+      <div class="d-flex align-items-center gap-md-3 gap-1">
+        <!-- テーマ切替 -->
+        <div class="position-relative">
+          <button type="button" class="btn btn-sm p-1 d-flex justify-content-center align-items-center"
+            id="theme-button" aria-label="テーマ切替" title="テーマ切替">
+            <i class="bi bi-circle-half" style="font-size: 16px; line-height: 1;"></i>
+          </button>
+          <div id="theme-menu" class="card p-2 d-none">
+            <div class="d-flex justify-content-between gap-2">
+              <button type="button" class="btn btn-sm theme-option" data-theme="system" title="システム">
+                <i class="bi bi-display"></i>
+              </button>
+              <button type="button" class="btn btn-sm theme-option" data-theme="light" title="ライト">
+                <i class="bi bi-sun"></i>
+              </button>
+              <button type="button" class="btn btn-sm theme-option" data-theme="dark" title="ダーク">
+                <i class="bi bi-moon"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- その他メニュー -->
+        <div class="position-relative">
+          <button type="button" class="btn btn-sm p-1 d-flex justify-content-center align-items-center" id="more-button"
+            aria-label="その他" title="その他">
+            <i class="bi bi-three-dots-vertical" style="font-size: 16px; line-height: 1;"></i>
+          </button>
+          <div id="more-menu" class="card p-2 d-none position-absolute">
+            <div class="d-flex flex-column gap-1">
+              <!-- 新しいタブで開く -->
+              <button type="button" class="btn btn-sm more-option d-flex align-items-center gap-2 text-start"
+                id="new-tab-button" title="新しいタブで開く">
+                <i class="bi bi-box-arrow-up-right" style="font-size: 16px;"></i>
+                <span class="small">新しいタブで開く</span>
+              </button>
+              <hr class="my-1">
+              <!-- シェア -->
+              <div class="px-2 py-1">
+                <span class="small text-muted">シェア</span>
+              </div>
+              <button type="button" class="btn btn-sm share-option d-flex align-items-center gap-2 text-start"
+                data-share="twitter" title="X (Twitter)でシェア">
+                <i class="bi bi-twitter-x" style="font-size: 16px;"></i>
+                <span class="small">X (Twitter)</span>
+              </button>
+              <button type="button" class="btn btn-sm share-option d-flex align-items-center gap-2 text-start"
+                data-share="facebook" title="Facebookでシェア">
+                <i class="bi bi-facebook" style="font-size: 16px; color: #1877f2;"></i>
+                <span class="small">Facebook</span>
+              </button>
+              <button type="button" class="btn btn-sm share-option d-flex align-items-center gap-2 text-start"
+                data-share="copy" title="URLをコピー">
+                <i class="bi bi-clipboard" style="font-size: 16px;"></i>
+                <span class="small">URLをコピー</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ステータスの表示 -->
+  <div class="d-flex justify-content-between my-2 mx-1">
+    <label class="my-auto " for="enabled" id="enabled-label"></label>
+    <div class="form-check form-switch form-check-reverse me-3">
+      <input class="form-check-input" type="checkbox" role="switch" id="enabled" aria-checked="false">
+    </div>
+  </div>
+
+  <!-- メニュータブ -->
+  <ul class="nav nav-underline mb-2 mx-1" id="myTab" role="tablist">
+    <li class="nav-item " role="presentation">
+      <a class="nav-link p-1 p-md-2 active" id="settings-tab" data-bs-toggle="tab" href="#settings" role="tab"
+        aria-controls="settings " aria-selected="true">設定</a>
+    </li>
+    <li class="nav-item " role="presentation">
+      <a class="nav-link p-1 p-md-2" id="history-tab" data-bs-toggle="tab" href="#history" role="tab"
+        aria-controls="history" aria-selected="false">履歴</a>
+    </li>
+    <li class="nav-item " role="presentation">
+      <a class="nav-link p-1 p-md-2" id="document-tab" data-bs-toggle="tab" href="#document" role="tab"
+        aria-controls="document" aria-selected="false">ドキュメント</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link py-1 p-md-2" id="version-tab" data-bs-toggle="tab" href="#version" role="tab"
+        aria-controls="version" aria-selected="true">バージョン</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link p-1 p-md-2" id="info-tab" data-bs-toggle="tab" href="#info" role="tab" aria-controls="info"
+        aria-selected="false">情報</a>
+    </li>
+  </ul>
+
+
+  <div class="tab-content" id="myTabContent">
+    <!-- 設定 -->
+    <div class="tab-pane fade mt-3 mx-2 show active" id="settings" role="tabpanel" style="margin-bottom: 180px;"
+      aria-labelledby="settings-tab">
+      <div class="list-group list-group-flush">
+        <div class="list-group-item">
+          <div class="row g-2 align-items-center">
+            <label class="col-4" for="fileName">ファイル名:</label>
+            <div class="col-8">
+              <input class="form-control form-control-sm" type="text" id="fileName" placeholder="ファイル名を入力">
+            </div>
+          </div>
+        </div>
+        <div class="list-group-item">
+          <div class="row g-2 align-items-center">
+            <label class="col-4" for="fileFormat">ファイル形式:</label>
+            <div class="col-8">
+              <select class="form-select form-select-sm" id="fileFormat">
+                <option value="txt">.txt</option>
+                <option value="csv">.csv</option>
+                <option value="md">.md</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="list-group-item">
+          <label for="headerText" class="form-label">先頭に付ける文章:</label>
+          <textarea class="form-control" id="headerText" rows="7"></textarea>
+          <div class="d-flex flex-wrap gap-1 my-2">
+            <button type="button" class="btn btn-primary btn-sm p-1" id="insertMeetStart">meet開始時刻</button>
+            <button type="button" class="btn btn-primary btn-sm p-1" id="insertCaptionStart">字幕ログ開始時刻</button>
+            <button type="button" class="btn btn-primary btn-sm p-1" id="insertCaptionEnd">字幕ログ終了時刻</button>
+          </div>
+        </div>
+        <div class="text-end py-2">
+          <button type="button" class="btn btn-success btn-sm" id="saveButton">保存</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="resetButton">デフォルト</button>
+        </div>
+      </div>
+
+      <fieldset class="row m-3 px-2 py-3 border border-1 rounded">
+        <legend class="col-form-label col-sm-2 pt-0 fs-6">オプション</legend>
+        <div class="col-sm-10">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="saveOnEndCall">
+            <label class="form-check-label" for="saveOnEndCall">通話終了ボタンを押した時に保存する</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="saveOnTabClose">
+            <label class="form-check-label" for="saveOnTabClose">タブを閉じた時に保存する</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="saveHistory">
+            <label class="form-check-label" for="saveHistory">履歴を保存する（最大25件）</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="showCaptionsOnStart">
+            <label class="form-check-label" for="showCaptionsOnStart">通話開始時に字幕を表示する</label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- 履歴 -->
+    <div class="tab-pane fade mt-2 mx-2" id="history" role="tabpanel" style="margin-bottom: 200px;"
+      aria-labelledby="history-tab">
+      <div class="d-flex justify-content-between align-items-center pt-3 ps-2 mb-2">
+        <h5 class="m-0">保存履歴</h5>
+        <small class="text-muted">最大25件</small>
+      </div>
+      <ul class="list-group" id="historyList"></ul>
+    </div>
+
+    <!-- ドキュメント -->
+    <div class="tab-pane fade mt-2 mx-2" id="document" role="tabpanel" style="margin-bottom: 200px;"
+      aria-labelledby="document-tab">
+    </div>
+
+    <!-- 更新履歴 -->
+    <div class="tab-pane fade mt-2 mx-2 " id="version" role="tabpanel" style="margin-bottom: 200px;"
+      aria-labelledby="version-tab">
+    </div>
+
+    <!-- 詳細情報 -->
+    <div class="tab-pane fade mt-2 mx-2" id="info" role="tabpanel" style="margin-bottom: 200px;"
+      aria-labelledby="info-tab">
+      <ul class="list-group list-group-flush">
+        <h5 class="pt-3 ps-2 mb-2">詳細</h5>
+
+        <li class="list-group-item">
+          <ul>
+            <li>
+              <a href="" id="store-link">ストアページに移動</a>
+            </li>
+            <li>
+              <a href="" id="extension-link">この拡張機能を管理する</a>
+            </li>
+            <li>
+              <a href="" id="issues-link">問題を報告する</a>
+            </li>
+          </ul>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">名前:</p>
+          <p class="m-0" id="extension-name"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">説明: </p>
+
+          <p class="m-0" id="extension-description"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">バージョン: </p>
+          <p class="m-0" id="extension-version"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">ID: </p>
+          <p class="m-0" id="extension-id"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">権限</p>
+          <p class="m-0" id="permission-info"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">サイトへのアクセス:</p>
+          <p class="m-0 py-1">アクセスしたウェブサイト上にある自分の全データの読み取りと変更をこの拡張機能に許可します．</p>
+          <span id="site-access">Checking...</span>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">シークレット モードでの実行を許可する: </p>
+          <p class="m-0" id="incognito-enabled"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">言語: </p>
+          <p class="m-0" id="language"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">提供元: </p>
+          <p class="m-0" id="publisher-name"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">デベロッパー: </p>
+          <p class="m-0" id="developer-name"></p>
+        </li>
+        <li class="list-group-item">
+          <p class="m-0">GitHub: </p>
+          <a class="m-0" id="github-link" href="#" aria-label="GitHub repository">GitHub</a>
+        </li>
+        <li class="list-group-item"></li>
+      </ul>
+      <div class="ps-0 " style="margin-bottom: 180px;">
+        <h5 class="ps-1">プライバシー</h5>
+        <div id="privacy-policy-content" class="m-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 固定フッターとしての開閉パネル -->
+  <div class="bg-body position-fixed bottom-0 end-0 border-top w-100" style="z-index: 2000;">
+    <!-- ドラッグしてサイズ変更 -->
+    <div class="w-100 position-relative" id="resizer" style="cursor: n-resize; height: 5px;"></div>
+    <div>
+      <!-- タブメニュー -->
+      <div class="d-flex justify-content-between mx-1 mb-1" id="tab-menu">
+        <ul class="nav nav-underline px-2" id="panelTab" role="tablist">
+          <li class="nav-item " role="presentation">
+            <a class="nav-link active p-0" id="log-tab" data-bs-toggle="tab" href="#messagePanel" role="tab"
+              aria-controls="messagePanel" aria-selected="true">ログ</a>
+          </li>
+        </ul>
+        <div class="d-flex justify-content-center align-items-center gap-1 gap-md-2 me-1 me-md-2">
+          <!-- クリアボタン -->
+          <button type="button" class="btn btn-sm p-0 panel-btn" id="clear-button" title="メッセージクリア">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" version="1.1" alt="メッセージクリア" role="img" aria-label="メッセージクリア" fill="currentColor" width="16" height="16">
+              <path
+                d="M2.768592 5.282112C2.566848 5.340744 2.33448 5.582136 2.277696 5.792088C2.2381919999999997 5.938224 2.261928 6.207528 2.325192 6.330984C2.39184 6.460992000000001 2.5357920000000003 6.60588 2.669016 6.677016L2.7720000000000002 6.732 12 6.732L21.228 6.732 21.330984 6.677016C21.4626 6.606719999999999 21.606792000000002 6.462504000000001 21.676944000000002 6.330984C21.723096 6.24444 21.731856 6.191592 21.731856 6C21.731856 5.808408 21.723096 5.75556 21.676944000000002 5.669016C21.606792000000002 5.537496000000001 21.4626 5.39328 21.330984 5.322984L21.228 5.268 12.036 5.264112C6.550751999999999 5.2617840000000005 2.8135920000000003 5.269032 2.768592 5.282112M2.849352 9.264816C2.638728 9.300431999999999 2.434824 9.458568000000001 2.3242320000000003 9.672C2.244 9.826896 2.23416 10.093032000000001 2.3020080000000003 10.27368C2.361048 10.430904 2.515464 10.596648 2.682336 10.68192L2.7960000000000003 10.74 12 10.74L21.204 10.74 21.312 10.684008C21.477240000000002 10.598352 21.641160000000003 10.425048 21.696288 10.277712000000001C21.838752 9.896928 21.66348 9.47556 21.290928 9.303288L21.18 9.252 12.072000000000001 9.248712C7.0626 9.246912 2.9124 9.254159999999999 2.849352 9.264816M14.825616000000002 12.76872C14.67348 12.806928 14.55564 12.880008 14.441496 13.006944C14.311704 13.151304 14.256 13.299384 14.256 13.5C14.256 13.814304 14.222952000000001 13.772208 15.386928 14.94036L16.439496000000002 15.99672 15.418824 17.01636C14.232576 18.201384 14.241936 18.189144 14.260824000000001 18.533472C14.273784 18.769608 14.322023999999999 18.878040000000002 14.486088 19.039800000000003C14.691744 19.242552 14.994984000000002 19.302384 15.281088 19.196687999999998C15.410664 19.148808 15.4902 19.07544 16.4646 18.105168L17.5092 17.064984000000003 18.537888000000002 18.093888C19.254383999999998 18.810528 19.599408 19.139184 19.67484 19.17684C19.822656 19.250664 20.066616 19.266936 20.227056 19.213632C20.66028 19.069752 20.875536 18.5634 20.674104000000003 18.162024C20.652576 18.119112 20.169216000000002 17.61696 19.599984000000003 17.046143999999998L18.565008000000002 16.008264 19.589184 14.982144C20.746655999999998 13.822415999999999 20.744496 13.825199999999999 20.743464000000003 13.501104000000002C20.742624 13.234319999999999 20.629968 13.021248 20.414952000000003 12.879672000000001C20.191128000000003 12.732287999999999 19.926432000000002 12.710304 19.68 12.81864C19.597488000000002 12.854904 19.326984000000003 13.110792 18.533856 13.902816L17.495736 14.93952 16.457856 13.902624C15.64476 13.090272 15.395784 12.855096000000001 15.308231999999999 12.81672C15.176544 12.759 14.952888000000002 12.736752 14.825616000000002 12.76872M2.787336 13.275528000000001C2.586912 13.333224000000001 2.375904 13.529592 2.3014799999999997 13.727736000000002C2.234184 13.906920000000001 2.244288 14.173680000000001 2.3242320000000003 14.328000000000001C2.442168 14.55564 2.629464 14.692944 2.88 14.735376000000002C2.990472 14.754096 4.223328 14.759784 7.104 14.754912000000001L11.172 14.748000000000001 11.304 14.685287999999998C11.628168 14.531304 11.797008 14.20848 11.734295999999999 13.86264C11.702712 13.688424 11.583120000000001 13.496904 11.44032 13.391904C11.232528 13.239096 11.505672 13.247784 6.985632 13.250160000000001C4.41252 13.251528000000002 2.837736 13.261032 2.787336 13.275528000000001M2.768592 17.282064000000002C2.5667519999999997 17.34084 2.33448 17.582160000000002 2.277696 17.792088C2.2381919999999997 17.938224 2.261928 18.207528 2.325192 18.330984C2.39184 18.460992 2.5357920000000003 18.60588 2.669016 18.677016L2.7720000000000002 18.732 6.968400000000001 18.738264L11.164824000000001 18.744528000000003 11.306352 18.681024C11.44992 18.616584 11.604648 18.473976 11.671728 18.344256C11.691408000000001 18.306192000000003 11.718960000000001 18.213144 11.732952 18.137520000000002C11.79492 17.802336 11.63664 17.484408000000002 11.328 17.324088L11.22 17.268 7.032 17.264064C4.558872 17.261736000000003 2.813136 17.269104000000002 2.768592 17.282064000000002"
+                stroke="none" fill="currentColor" fill-rule="evenodd" stroke-width="0.024"></path>
+            </svg>
+          </button>
+          <!-- 最大化ボタン -->
+          <button type="button" class="btn btn-sm p-0 panel-btn" id="maximize-button" title="最大化">
+            <i class="bi bi-arrow-bar-up" style="font-size: 16px; line-height: 1;"></i>
+          </button>
+          <!-- 最小化ボタン -->
+          <button type="button" class="btn btn-sm p-0 panel-btn" id="minimize-button" title="最小化">
+            <i class="bi bi-arrow-bar-down" style="font-size: 16px; line-height: 1;"></i>
+          </button>
+          <!-- パネルの表示ボタン -->
+          <button type="button" class="btn btn-sm p-0 panel-btn" id="panel-button" title="パネルの表示">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="-0.5 -0.5 16 16" fill="none" stroke="currentColor"
+              stroke-linecap="round" stroke-linejoin="round" id="Panel-Bottom-Open--Streamline-Lucide" height="16"
+              width="16" aria-label="パネルの表示" role="img">
+              <desc>Panel Bottom Open Streamline Icon: https://streamlinehq.com</desc>
+              <path
+                d="M3.125 1.875h8.75s1.25 0 1.25 1.25v8.75s0 1.25 -1.25 1.25H3.125s-1.25 0 -1.25 -1.25V3.125s0 -1.25 1.25 -1.25"
+                stroke-width="1"></path>
+              <path d="M1.875 9.375h11.25" stroke-width="1"></path>
+              <path d="m5.625 6.25 1.875 -1.875 1.875 1.875" stroke-width="1"></path>
+            </svg>
+          </button>
+          <!-- 閉じる -->
+          <button type="button" class="btn btn-sm p-0 panel-btn" id="close-button" title="閉じる">
+            <i class="bi bi-x" style="font-size: 18px; line-height: 1;"></i>
+          </button>
+        </div>
+      </div>
+      <!-- メッセージ -->
+      <div class="tab-content" id="panel">
+        <div id="messagePanel" class="bg-body border p-1 p-md-2 overflow-auto tab-pane fade show active h-100"
+          role="tabpanel" aria-labelledby="message-tab">
+          <div id="message" style="min-height: 100%; box-sizing: border-box;">
+          </div>
+        </div>
+        <div id="convertPanel" class="bg-body border p-1 overflow-auto tab-pane fade h-100" role="tabpanel"
+          aria-labelledby="convert-tab">
+          <div id="convert" class="h-100" style=" padding: 10px;"></div>
+        </div>
+        <div id="infoPanel" class="bg-body border p-1 overflow-auto tab-pane fade h-100" role="tabpanel"
+          aria-labelledby="info-tab">
+          <p>情報</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

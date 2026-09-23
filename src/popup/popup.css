@@ -1,0 +1,136 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css");
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+
+html {
+  font-size: 0.9rem;
+  min-width: 28rem;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 1rem !important;
+  }
+
+  .container-md {
+    max-width: 720px !important;
+  }
+
+  i {
+    font-size: 130% !important;
+  }
+
+  svg {
+    width: 1.3rem !important;
+    height: 1.3rem !important;
+  }
+
+  .panel-btn {
+    height: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    width: auto !important;
+  }
+}
+
+#panel {
+  height: 0;
+  overflow: hidden;
+  transition: height 0.3s ease;
+}
+
+#panel.no-transition {
+  transition: none !important;
+}
+
+.panel-btn {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#theme-button,
+#more-button {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+#theme-button:hover,
+#more-button:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+#theme-menu {
+  position: absolute;
+  top: 36px;
+  right: 0;
+  z-index: 2500;
+}
+
+#more-menu {
+  position: absolute;
+  top: 36px;
+  right: 0;
+  z-index: 2500;
+  min-width: 160px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#more-menu .share-option,
+#more-menu .more-option {
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 6px 8px;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+#more-menu .share-option:hover,
+#more-menu .more-option:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="dark"] #more-menu .share-option:hover,
+[data-bs-theme="dark"] #more-menu .more-option:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#theme-menu .theme-option {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: inherit;
+}
+
+#theme-menu .theme-option:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+#theme-menu .theme-option.active {
+  background-color: var(--bs-primary, #0d6efd);
+  color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+#theme-menu .theme-option.active i,
+#theme-menu .theme-option.active svg {
+  color: #fff;
+  fill: #fff;
+  stroke: #fff;
+}
+
+svg {
+  stroke: currentColor;
+}

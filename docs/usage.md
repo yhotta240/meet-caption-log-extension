@@ -1,3 +1,12 @@
+---
+id: usage
+title: 使い方
+order: 2
+visible: true
+expanded: false
+date: 2026-02-19
+---
+
 ## 拡張機能の使い方
 
 ### 拡張機能を有効にする
@@ -6,14 +15,14 @@
 2. 右上の [拡張機能] アイコンをクリックします．
 3. 「Google Meet 字幕ログ」を選択します．（固定しておくと常に表示されます）
 
-   <img src="https://assets.st-note.com/img/1729409727-g1QPUsGfRO75c4WjhXEH3oib.png" width="50%" alt="Enable the extension">
+   <img src="https://assets.st-note.com/img/1729409727-g1QPUsGfRO75c4WjhXEH3oib.png" width="75%" alt="Enable the extension">
 
 ## Google Meet 字幕ログを有効にする
 
 1. 拡張機能のポップアップを開きます．
 2. 上部にある「字幕ログを有効にする」の項目でトグルボタンをオンにします．
 
-   <img src="https://assets.st-note.com/img/1729409862-XHv41ZK6Msq7yEPw5n2u8rJO.png" width="50%" alt="Enable captions logger">
+   <img src="https://assets.st-note.com/img/1729409862-XHv41ZK6Msq7yEPw5n2u8rJO.png" width="75%" alt="Enable captions logger">
 
 ### 字幕ログの設定
 
@@ -31,13 +40,13 @@
 
 ### 字幕のログを記録してファイルに保存する
 
-<img src="https://assets.st-note.com/img/1729410155-sYmlMwgZSUDVuIG05W1cPKtb.png" width="50%" alt="Enable captions logger">
+<img src="https://assets.st-note.com/img/1729410155-sYmlMwgZSUDVuIG05W1cPKtb.png" width="75%" alt="Enable captions logger">
 
 1. Google Meet にアクセスし，会議に参加します．
 2. 字幕ボタンをクリックすると，字幕が表示されます．※言語設定は日本語にしておきましょう
 3. 任意のタイミングで字幕を解除すると，設定で保存した通りにファイルがダウンロードされます．
 
-   <img src="https://assets.st-note.com/img/1729410370-KGt9ZoulkxX6gyCEqwLPzWf8.png" width="50%" alt="captions download">
+   <img src="https://assets.st-note.com/img/1729410370-KGt9ZoulkxX6gyCEqwLPzWf8.png" width="75%" alt="captions download">
 
 > [!TIP]
 > 拡張機能のオプションで，「通話終了ボタンを押した時に保存する」または「タブを閉じた時に保存する」を有効にしておくと，自動的に字幕ログが保存されます．字幕をオフにする必要はありません．
