@@ -201,24 +201,28 @@ async function saveCaptions(): Promise<void> {
   anchor.remove();
   URL.revokeObjectURL(url);
 
-  // 履歴保存（最大25件）
-  if (options.saveHistory) {
-    const { history = [] } = await getStorage<{ history?: CaptionHistoryEntry[] }>("history");
-    const entry: CaptionHistoryEntry = {
-      savedAt: new Date().toISOString(),
-      fileName,
-      fileFormat: mimeType,
-      content: fileContent,
-    };
-    await setStorage({ history: [entry, ...history].slice(0, 25) });
+  try {
+    // 履歴保存（最大25件）
+    if (options.saveHistory) {
+      const { history = [] } = await getStorage<{ history?: CaptionHistoryEntry[] }>("history");
+      const entry: CaptionHistoryEntry = {
+        savedAt: new Date().toISOString(),
+        fileName,
+        fileFormat: mimeType,
+        content: fileContent,
+      };
+      await setStorage({ history: [entry, ...history].slice(0, 25) });
+    }
+  } catch (error) {
+    void logError("字幕履歴の保存に失敗しました", "content", error);
+  } finally {
+    isCaptionsSaved = true;
+    prevSpeakerCount = 1;
+    caption = null;
+    captions = [];
+    captionStartTime = null;
+    captionEndTime = null;
   }
-
-  isCaptionsSaved = true;
-  prevSpeakerCount = 1;
-  caption = null;
-  captions = [];
-  captionStartTime = null;
-  captionEndTime = null;
 }
 
 async function endCaptionLoggingAndSave(): Promise<void> {
