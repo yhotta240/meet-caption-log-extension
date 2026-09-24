@@ -1,3 +1,4 @@
+import "./badge.css";
 import {
   type CaptionHistoryEntry,
   type CaptionOptions,
@@ -23,37 +24,6 @@ type Caption = {
   text: string;
 };
 
-// バッジのスタイル定義
-const BADGE_STYLES = `
-  @keyframes badgePulseYellow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(251, 188, 4, 0.7); }
-    50% { box-shadow: 0 0 0 3px rgba(251, 188, 4, 0.3); }
-  }
-  @keyframes badgePulseGreen {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(0, 150, 136, 0.7); }
-    50% { box-shadow: 0 0 0 3px rgba(0, 150, 136, 0.3); }
-  }
-  #captionEnabledBadge {
-    position: absolute;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    z-index: 1000;
-  }
-  #captionEnabledBadge.yellow-badge {
-    background: linear-gradient(135deg, #fbbc04 0%, #f9ab00 100%);
-    animation: badgePulseYellow 2s infinite;
-    top: -2px;
-    right: -2px;
-  }
-  #captionEnabledBadge.green-badge {
-    background: linear-gradient(135deg, #00b600 0%, #00b900 100%);
-    animation: badgePulseGreen 2s infinite;
-    top: -2px;
-    right: -2px;
-  }
-`;
-
 let isCaptionsSaved = true; // 保存が行われたかを記録するフラグ
 let isSaving = false;
 let meetStartTime: string | null = null; // {meet開始時刻} に対応
@@ -64,15 +34,6 @@ let caption: Caption | null = null; // 字幕を保存するオブジェクト
 let captions: Caption[] = []; // 字幕を保存する配列
 let options: CaptionOptions = DEFAULT_OPTIONS; // オプションを保存するオブジェクト
 let isEnabledLog = true; // デフォルトは有効
-
-function addBadgeAnimationStyles(): void {
-  if (document.querySelector("#badgeAnimationStyles")) return;
-
-  const style = document.createElement("style");
-  style.id = "badgeAnimationStyles";
-  style.textContent = BADGE_STYLES;
-  document.head.appendChild(style);
-}
 
 async function checkMeetingStatus(): Promise<void> {
   if (!MEET_URL_PATTERN.test(window.location.href) || meetStartTime) return;
@@ -276,7 +237,6 @@ function dateTime(): string {
 
 async function initialize(): Promise<void> {
   try {
-    addBadgeAnimationStyles();
     await checkMeetingStatus();
     await loadSettings();
     await handleLogState();

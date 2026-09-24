@@ -1,5 +1,6 @@
 import type { Plugin } from "vite";
 import { build } from "vite";
+import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
 import { resolve } from "node:path";
 import { addProjectWatchFiles } from "../watch-files.ts";
 
@@ -30,6 +31,7 @@ export function contentScriptPlugin(isDev: boolean, root: string): Plugin {
             configFile: false,
             logLevel: "info",
             publicDir: false,
+            plugins: [cssInjectedByJsPlugin()],
             define: {
               "process.env.NODE_ENV": JSON.stringify(isDev ? "development" : "production"),
             },
