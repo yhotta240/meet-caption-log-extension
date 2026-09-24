@@ -1,0 +1,41 @@
+@keyframes badgePulseYellow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(251, 188, 4, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(251, 188, 4, 0.3);
+  }
+}
+
+@keyframes badgePulseGreen {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 150, 136, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(0, 150, 136, 0.3);
+  }
+}
+
+#captionEnabledBadge {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  z-index: 1000;
+}
+
+#captionEnabledBadge.yellow-badge {
+  background: linear-gradient(135deg, #fbbc04 0%, #f9ab00 100%);
+  animation: badgePulseYellow 2s infinite;
+  top: -2px;
+  right: -2px;
+}
+
+#captionEnabledBadge.green-badge {
+  background: linear-gradient(135deg, #00b600 0%, #00b900 100%);
+  animation: badgePulseGreen 2s infinite;
+  top: -2px;
+  right: -2px;
+}

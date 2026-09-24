@@ -1,0 +1,43 @@
+{
+  "name": "meet-caption-log-extension",
+  "version": "1.9.1",
+  "description": "Google Meetの会議中に表示される字幕を保存します",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "check": "biome check src",
+    "check:fix": "biome check --write --unsafe src",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run check && npm run typecheck && vite build",
+    "build:dev": "vite build --mode development",
+    "watch": "vite build --mode development --watch",
+    "pack": "npm run build && exr pack dist/",
+    "release": "npm run build && exr release dist/ --force"
+  },
+  "keywords": [],
+  "author": "yhotta240",
+  "license": "MIT",
+  "engines": {
+    "node": "^22.12.0 || >=24.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.9",
+    "@types/chrome": "^0.1.6",
+    "@types/node": "^24.3.1",
+    "@types/sanitize-html": "^2.16.0",
+    "@types/ws": "^8.18.1",
+    "@yhotamos/extension-release-cli": "^0.5.0",
+    "gray-matter": "^4.0.3",
+    "marked": "^17.0.3",
+    "sanitize-html": "^2.17.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.0.16",
+    "vite-plugin-css-injected-by-js": "^5.0.1",
+    "vite-plugin-static-copy": "^4.1.1",
+    "ws": "^8.18.3"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8"
+  }
+}
