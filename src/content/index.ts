@@ -33,6 +33,7 @@ let prevSpeakerCount = 1; // 前回のスピーカーの数
 let caption: Caption | null = null; // 字幕を保存するオブジェクト
 let captions: Caption[] = []; // 字幕を保存する配列
 let options: CaptionOptions = DEFAULT_OPTIONS; // オプションを保存するオブジェクト
+let captionSettings: CaptionSettings = DEFAULT_SETTINGS;
 let isEnabledLog = true; // デフォルトは有効
 
 async function checkMeetingStatus(): Promise<void> {
@@ -45,6 +46,7 @@ async function checkMeetingStatus(): Promise<void> {
 async function loadSettings(): Promise<void> {
   isEnabledLog = await isEnabled();
   options = await getOptions();
+  captionSettings = await getSettings();
 }
 
 async function handleLogState(): Promise<void> {
@@ -129,11 +131,10 @@ function monitorCaptions(): void {
 }
 
 async function saveCaptions(): Promise<void> {
-  const storedSettings = await getSettings();
   const settings: CaptionSettings = {
     ...DEFAULT_SETTINGS,
-    ...storedSettings,
-    fileFormat: normalizeCaptionFileFormat(storedSettings.fileFormat),
+    ...captionSettings,
+    fileFormat: normalizeCaptionFileFormat(captionSettings.fileFormat),
   };
   let fileName = settings.fileName || DEFAULT_SETTINGS.fileName;
   const mimeType = MIME_TYPES[settings.fileFormat];
@@ -194,7 +195,9 @@ async function endCaptionLoggingAndSave(): Promise<void> {
   try {
     if (caption) captions.push(caption);
     captionEndTime = dateTime();
-    await setStorage({ captionEndTime });
+    void setStorage({ captionEndTime }).catch((error) => {
+      void logError("字幕ログ終了時刻の保存に失敗しました", "content", error);
+    });
     await saveCaptions();
   } catch (error) {
     void logError("字幕ログの保存に失敗しました", "content", error);
@@ -218,6 +221,10 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 
   if (changes.options) {
     options = { ...DEFAULT_OPTIONS, ...(changes.options.newValue as Partial<CaptionOptions>) };
+  }
+
+  if (changes.settings) {
+    captionSettings = (changes.settings.newValue as CaptionSettings) ?? DEFAULT_SETTINGS;
   }
 });
 
