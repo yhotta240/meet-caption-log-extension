@@ -8,7 +8,7 @@ import {
   MIME_TYPES,
   normalizeCaptionFileFormat,
 } from "../settings";
-import { logError } from "../utils/logger";
+import { logError, logInfo } from "../utils/logger";
 import { getOptions, getSettings, getStorage, isEnabled, setStorage } from "../utils/storage";
 
 // 会議中のURLの正規表現
@@ -40,6 +40,7 @@ async function checkMeetingStatus(): Promise<void> {
   if (!MEET_URL_PATTERN.test(window.location.href) || meetStartTime) return;
 
   meetStartTime = dateTime();
+  void logInfo("Meetページを開きました", "content");
   await setStorage({ meetStartTime });
 }
 
@@ -114,6 +115,7 @@ function monitorCaptions(): void {
   if (!captionStartTime) {
     captionStartTime = dateTime();
     captionEndTime = null;
+    void logInfo("字幕ログが開始されました", "content");
     void setStorage({ captionStartTime, captionEndTime });
   }
 
@@ -195,6 +197,7 @@ async function endCaptionLoggingAndSave(): Promise<void> {
   try {
     if (caption) captions.push(caption);
     captionEndTime = dateTime();
+    void logInfo("字幕ログが終了しました", "content");
     void setStorage({ captionEndTime }).catch((error) => {
       void logError("字幕ログ終了時刻の保存に失敗しました", "content", error);
     });
