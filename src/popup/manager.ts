@@ -8,7 +8,7 @@ import {
   type LogEntry,
   type LogLevel,
 } from "../utils/logger";
-import { getSettings, getStorage, isEnabled, setEnabled, setSettings } from "../utils/storage";
+import { getSettings, isEnabled, setEnabled, setSettings } from "../utils/storage";
 import { setupCaptionSettings } from "./components/captions";
 import { setupDocumentTab } from "./components/document";
 import { setupInfoTab } from "./components/info";
@@ -57,20 +57,13 @@ export class PopupManager {
 
     try {
       const logs = await getLogs();
-      const visibleCount = logs.filter((e) => !e.hidden).length;
       if (logs.length > 0) {
         this.panel.loadLogs(logs, this.manifestMetadata.issues_url);
       }
-      this.watchStorageLogs(visibleCount);
+      this.watchStorageLogs();
     } catch (err) {
       console.error("ログ読み込みエラー", err);
-      this.watchStorageLogs(0);
-    }
-
-    try {
-      await this.loadCaptionEvents();
-    } catch (err) {
-      console.error("字幕ログ状態の読み込みエラー", err);
+      this.watchStorageLogs();
     }
 
     try {
@@ -83,14 +76,23 @@ export class PopupManager {
     }
   }
 
-  private watchStorageLogs(knownLength: number): void {
-    let currentLength = knownLength;
+  private watchStorageLogs(): void {
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area === "local" && changes[LOG_STORAGE_KEY]) {
-        const rawEntries = changes[LOG_STORAGE_KEY]?.newValue;
+        const change = changes[LOG_STORAGE_KEY];
+        const rawEntries = change.newValue;
         const entries: LogEntry[] = Array.isArray(rawEntries) ? rawEntries : [];
+        const oldEntries: LogEntry[] = Array.isArray(change.oldValue) ? change.oldValue : [];
         const visible = entries.filter((e) => !e.hidden);
-        const newEntries = visible.slice(currentLength);
+        const oldVisible = oldEntries.filter((e) => !e.hidden);
+        let overlap = Math.min(oldVisible.length, visible.length);
+        while (
+          overlap > 0 &&
+          JSON.stringify(oldVisible.slice(-overlap)) !== JSON.stringify(visible.slice(0, overlap))
+        ) {
+          overlap--;
+        }
+        const newEntries = visible.slice(overlap);
         for (const entry of newEntries) {
           this.panel.messageOutput(
             entry.message,
@@ -100,38 +102,6 @@ export class PopupManager {
             this.manifestMetadata.issues_url,
           );
         }
-        currentLength = visible.length;
-      }
-    });
-  }
-
-  private async loadCaptionEvents(): Promise<void> {
-    const keys = ["meetStartTime", "captionStartTime", "captionEndTime"] as const;
-    const labels: Record<(typeof keys)[number], string> = {
-      meetStartTime: "会議が開始されました",
-      captionStartTime: "字幕ログが開始されました",
-      captionEndTime: "字幕ログが終了しました",
-    };
-    const data = await getStorage<Partial<Record<(typeof keys)[number], string | null>>>([...keys]);
-    const lastValues = new Map<string, string>();
-    const initialEvents = keys
-      .map((key) => ({ key, time: data[key] }))
-      .filter((event): event is { key: (typeof keys)[number]; time: string } => Boolean(event.time))
-      .sort((a, b) => a.time.localeCompare(b.time));
-
-    for (const event of initialEvents) {
-      lastValues.set(event.key, event.time);
-      this.panel.messageOutput(labels[event.key], event.time, "info", "content");
-    }
-
-    chrome.storage.onChanged.addListener((changes, area) => {
-      if (area !== "local") return;
-
-      for (const key of keys) {
-        const value = changes[key]?.newValue;
-        if (typeof value !== "string" || lastValues.get(key) === value) continue;
-        lastValues.set(key, value);
-        this.panel.messageOutput(labels[key], value, "info", "content");
       }
     });
   }
