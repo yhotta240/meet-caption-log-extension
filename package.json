@@ -1,6 +1,6 @@
 {
   "name": "meet-caption-log-extension",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "description": "Google Meetの会議中に表示される字幕を保存します",
   "main": "index.js",
   "type": "module",
@@ -12,6 +12,9 @@
     "build": "npm run check && npm run typecheck && vite build",
     "build:dev": "vite build --mode development",
     "watch": "vite build --mode development --watch",
+    "version:patch": "exr version patch --manifest ./public/manifest.dev.json ./public/manifest.prod.json",
+    "version:minor": "exr version minor --manifest ./public/manifest.dev.json ./public/manifest.prod.json",
+    "version:major": "exr version major --manifest ./public/manifest.dev.json ./public/manifest.prod.json",
     "pack": "npm run build && exr pack dist/",
     "release": "npm run build && exr release dist/ --force"
   },
