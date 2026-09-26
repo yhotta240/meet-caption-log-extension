@@ -1,7 +1,7 @@
 import type { Plugin } from "vite";
 import { basename } from "node:path";
 import matter from "gray-matter";
-import { marked } from "marked";
+import { Marked, marked } from "marked";
 import sanitizeHtml from "sanitize-html";
 
 const sanitizeOptions: sanitizeHtml.IOptions = {
@@ -23,6 +23,8 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
     "code",
     "pre",
     "blockquote",
+    "aside",
+    "i",
     "a",
     "img",
     "table",
@@ -34,10 +36,13 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
   ],
   allowedAttributes: {
     a: ["href", "title", "target", "rel"],
+    aside: ["class"],
+    i: ["class", "aria-hidden"],
     img: ["src", "alt", "title", "width", "height"],
     th: ["align"],
     td: ["align"],
   },
+  allowedClasses: { aside: ["md-tip"], i: ["bi", "bi-lightbulb"] },
   allowedSchemes: ["http", "https", "mailto"],
   allowedSchemesAppliedToAttributes: ["href", "src"],
   allowProtocolRelative: false,
@@ -53,9 +58,20 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
   },
 };
 
+const documentMarkdown = new Marked({
+  renderer: {
+    blockquote({ text }) {
+      if (!text.startsWith("[!TIP]\n")) return false;
+
+      const body = marked.parse(text.slice("[!TIP]\n".length), { async: false });
+      return `<aside class="md-tip"><strong><i class="bi bi-lightbulb" aria-hidden="true"></i>Tip</strong>${body}</aside>`;
+    },
+  },
+});
+
 function parseDocument(source: string) {
   const { data, content } = matter(source);
-  const html = String(marked.parse(content, { async: false }));
+  const html = String(documentMarkdown.parse(content, { async: false }));
 
   return {
     metadata: {
