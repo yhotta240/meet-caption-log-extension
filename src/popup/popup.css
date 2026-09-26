@@ -41,6 +41,24 @@ html {
   transition: none !important;
 }
 
+#document .md-tip {
+  border-inline-start: 0.25rem solid var(--bs-success, #198754);
+  padding: 0.5rem 1rem;
+  margin-block: 1rem;
+}
+
+#document .md-tip > strong {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--bs-success-text-emphasis, #146c43);
+  margin-bottom: 0.25rem;
+}
+
+#document .md-tip p:last-child {
+  margin-bottom: 0;
+}
+
 .panel-btn {
   width: 20px;
   height: 20px;
