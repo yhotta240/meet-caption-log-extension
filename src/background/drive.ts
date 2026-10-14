@@ -9,11 +9,13 @@ import { getOptions } from "../utils/storage";
 
 const UPLOAD_URL =
   "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id";
+const FILES_URL = "https://www.googleapis.com/drive/v3/files";
+const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 const MAX_UPLOAD_MB = 5;
 const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
 const UPLOAD_TIMEOUT_MS = 20_000;
 const UPLOAD_LOCK = "drive-upload";
-const DRIVE_SAVE_PATH_NAME = "meet-caption-log";
+const DRIVE_SAVE_FOLDER_NAME = "Google Meet 字幕ログ";
 const MEET_ORIGIN = "https://meet.google.com";
 const POPUP_PATH = "popup.html";
 const PENDING_LOG_PREFIX = "driveLog:";
@@ -74,11 +76,12 @@ function isDriveLog(value: unknown): value is DriveLog {
 /**
  * Drive にアップロードするためのリクエストボディを作成する
  */
-function createUploadBody(log: DriveLog): UploadBody {
+function createUploadBody(log: DriveLog, folderId: string): UploadBody {
   const boundary = `meet_${crypto.randomUUID()}`;
   const metadata = {
     name: log.fileName,
     mimeType: log.mimeType,
+    parents: [folderId],
   };
 
   const body = new Blob([
@@ -95,21 +98,17 @@ function createUploadBody(log: DriveLog): UploadBody {
   };
 }
 
-async function upload(log: DriveLog): Promise<void> {
-  if (new Blob([log.content]).size > MAX_UPLOAD_BYTES) {
-    throw new Error(`ログが${MAX_UPLOAD_MB} MBを超えています`);
-  }
-
-  const token = await getGoogleAccessToken();
-
-  const { body, contentType } = createUploadBody(log);
-  const response = await fetch(UPLOAD_URL, {
-    method: "POST",
+async function requestDrive(
+  url: string,
+  token: string,
+  options: RequestInit = {},
+): Promise<Response> {
+  const response = await fetch(url, {
+    ...options,
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": contentType,
+      ...options.headers,
     },
-    body,
     signal: AbortSignal.timeout(UPLOAD_TIMEOUT_MS),
   });
 
@@ -120,6 +119,61 @@ async function upload(log: DriveLog): Promise<void> {
   if (!response.ok) {
     throw new Error(`Drive 保存に失敗しました（HTTP ${response.status}）`);
   }
+
+  return response;
+}
+
+async function getSaveFolderId(token: string): Promise<string> {
+  const folderName = DRIVE_SAVE_FOLDER_NAME.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+  const query = new URLSearchParams({
+    q: [
+      `name = '${folderName}'`,
+      `mimeType = '${FOLDER_MIME_TYPE}'`,
+      "'root' in parents",
+      "trashed = false",
+    ].join(" and "),
+    fields: "files(id)",
+    pageSize: "1",
+    spaces: "drive",
+  });
+  const searchResponse = await requestDrive(`${FILES_URL}?${query}`, token);
+  const searchResult = await searchResponse.json();
+
+  if (searchResult.files?.length) {
+    return searchResult.files[0].id;
+  }
+
+  const createResponse = await requestDrive(`${FILES_URL}?fields=id`, token, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: DRIVE_SAVE_FOLDER_NAME,
+      mimeType: FOLDER_MIME_TYPE,
+      parents: ["root"],
+    }),
+  });
+  const folder = await createResponse.json();
+
+  if (!folder.id) {
+    throw new Error("Drive の保存先フォルダを確認できませんでした");
+  }
+
+  return folder.id;
+}
+
+async function upload(log: DriveLog): Promise<void> {
+  if (new Blob([log.content]).size > MAX_UPLOAD_BYTES) {
+    throw new Error(`ログが${MAX_UPLOAD_MB} MBを超えています`);
+  }
+
+  const token = await getGoogleAccessToken();
+  const folderId = await getSaveFolderId(token);
+  const { body, contentType } = createUploadBody(log, folderId);
+  const response = await requestDrive(UPLOAD_URL, token, {
+    method: "POST",
+    headers: { "Content-Type": contentType },
+    body,
+  });
 
   const result = await response.json();
 
