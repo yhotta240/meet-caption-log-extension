@@ -8,7 +8,7 @@ import {
   type LogEntry,
   type LogLevel,
 } from "../utils/logger";
-import { getSettings, isEnabled, setEnabled, setSettings } from "../utils/storage";
+import { getOptions, getSettings, isEnabled, setEnabled, setOptions, setSettings } from "../utils/storage";
 import { setupCaptionSettings } from "./components/captions";
 import { setupDocumentTab } from "./components/document";
 import { setupInfoTab } from "./components/info";
@@ -190,6 +190,13 @@ export class PopupManager {
         const { token } = await chrome.identity.getAuthToken({ interactive: true });
         if (!token) {
           throw new Error("Google Drive に接続できませんでした");
+        }
+
+        const options = await getOptions();
+        await setOptions({ ...options, saveToGoogleDrive: true });
+
+        if (saveToGoogleDrive) {
+          saveToGoogleDrive.checked = true;
         }
 
         await chrome.storage.local.set({

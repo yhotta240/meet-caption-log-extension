@@ -1,5 +1,6 @@
 import { MIME_TYPES } from "../settings";
 import { logError, logInfo } from "../utils/logger";
+import { getOptions } from "../utils/storage";
 
 const UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id";
 const MAX_UPLOAD_MB = 5;
@@ -131,11 +132,23 @@ async function upload(log: DriveLog): Promise<void> {
 async function sendPending(): Promise<void> {
   // 同時に保存要求が来ても，同じ未送信ログを並行送信しない．
   await navigator.locks.request(UPLOAD_LOCK, async () => {
+    const { driveState } = await chrome.storage.local.get(STORAGE.state);
+    const options = await getOptions();
+
+    if (!driveState?.enabled || !options.saveToGoogleDrive) {
+      return;
+    }
+
     const data = await chrome.storage.local.get(null);
 
     for (const [key, log] of Object.entries(data)) {
       if (!key.startsWith(STORAGE.logPrefix)) {
         continue;
+      }
+
+      const currentOptions = await getOptions();
+      if (!currentOptions.saveToGoogleDrive) {
+        return;
       }
 
       await upload(log);
@@ -159,6 +172,11 @@ async function storePendingLog(log: unknown, sender: chrome.runtime.MessageSende
   const settings = await chrome.storage.local.get(STORAGE.state);
 
   if (!settings[STORAGE.state]?.enabled) {
+    return false;
+  }
+
+  const options = await getOptions();
+  if (!options.saveToGoogleDrive) {
     return false;
   }
 
