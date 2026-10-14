@@ -1,7 +1,5 @@
 import { logInfo } from "../utils/logger";
 
-console.log("background script");
-
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {
     logInfo("拡張機能がインストールされました", "background");
