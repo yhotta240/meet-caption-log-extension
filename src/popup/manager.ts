@@ -194,8 +194,8 @@ export class PopupManager {
 
         await chrome.storage.local.set({
           driveState: { enabled: true },
-          driveStatus: "Google Drive に接続しました",
         });
+        await this.showLog("Google Drive に接続しました");
 
         const result = await chrome.runtime.sendMessage({ type: "drive:retry" });
         if (!result?.ok) {

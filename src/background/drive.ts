@@ -1,4 +1,5 @@
 import { MIME_TYPES } from "../settings";
+import { logError, logInfo } from "../utils/logger";
 
 const UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id";
 const MAX_UPLOAD_MB = 5;
@@ -11,7 +12,6 @@ const POPUP_PATH = "popup.html";
 const STORAGE = {
   logPrefix: "driveLog:",
   state: "driveState",
-  status: "driveStatus",
 };
 
 const MESSAGE = {
@@ -140,11 +140,8 @@ async function sendPending(): Promise<void> {
 
       await upload(log);
       await chrome.storage.local.remove(key);
+      await logInfo(`${log.fileName} を Google Drive に保存しました`, "background");
     }
-
-    await chrome.storage.local.set({
-      [STORAGE.status]: "Google Drive に接続しました（未送信ログなし）",
-    });
   });
 }
 
@@ -181,9 +178,11 @@ function errorMessage(error: unknown): string {
 
 async function reportError(error: unknown): Promise<void> {
   try {
-    await chrome.storage.local.set({
-      [STORAGE.status]: `${errorMessage(error)}．未送信ログは再接続時に再送します`,
-    });
+    await logError(
+      "Google Drive 保存に失敗しました．未送信ログは再接続時に再送します",
+      "background",
+      error,
+    );
   } catch {
     console.error("Drive のエラー状態を保存できませんでした");
   }
