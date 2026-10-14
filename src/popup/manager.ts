@@ -1,6 +1,11 @@
 import meta from "../../public/manifest.meta.json";
 import { DEFAULT_SETTINGS, type Settings } from "../settings";
 import {
+  connectGoogleDrive,
+  disconnectGoogleDrive,
+  isGoogleDriveConnected,
+} from "../utils/google-auth";
+import {
   addLog,
   clearLogs,
   getLogs,
@@ -8,7 +13,7 @@ import {
   type LogEntry,
   type LogLevel,
 } from "../utils/logger";
-import { getOptions, getSettings, isEnabled, setEnabled, setOptions, setSettings } from "../utils/storage";
+import { getOptions, getSettings, isEnabled, setEnabled, setSettings } from "../utils/storage";
 import { setupCaptionSettings } from "./components/captions";
 import { setupDocumentTab } from "./components/document";
 import { setupInfoTab } from "./components/info";
@@ -151,13 +156,13 @@ export class PopupManager {
     });
 
     const driveStatus = document.getElementById("drive-status");
-    const connectGoogleDrive = document.getElementById("connect-google-drive") as HTMLButtonElement | null;
-    const disconnectGoogleDrive = document.getElementById("disconnect-google-drive");
+    const connectDriveButton = document.getElementById("connect-google-drive") as HTMLButtonElement | null;
+    const disconnectDriveButton = document.getElementById("disconnect-google-drive") as HTMLButtonElement | null;
     const saveToGoogleDrive = document.getElementById("saveToGoogleDrive") as HTMLInputElement | null;
 
     const showDriveStatus = async () => {
-      const { driveState } = await chrome.storage.local.get("driveState");
-      const connected = Boolean(driveState?.enabled);
+      const connected = await isGoogleDriveConnected();
+      const options = await getOptions();
 
       if (driveStatus) {
         if (connected) {
@@ -167,15 +172,16 @@ export class PopupManager {
         }
       }
 
-      if (connectGoogleDrive) {
-        connectGoogleDrive.hidden = connected;
+      if (connectDriveButton) {
+        connectDriveButton.hidden = connected;
       }
 
-      if (disconnectGoogleDrive) {
-        disconnectGoogleDrive.hidden = !connected;
+      if (disconnectDriveButton) {
+        disconnectDriveButton.hidden = !connected;
       }
 
       if (saveToGoogleDrive) {
+        saveToGoogleDrive.checked = options.saveToGoogleDrive;
         saveToGoogleDrive.disabled = !connected;
       }
     };
@@ -184,34 +190,37 @@ export class PopupManager {
       if (area === "local" && changes.driveState) void showDriveStatus().catch(() => { });
     });
 
-    connectGoogleDrive?.addEventListener("click", async () => {
-      connectGoogleDrive.disabled = true;
+    connectDriveButton?.addEventListener("click", async () => {
+      connectDriveButton.disabled = true;
       try {
-        const { token } = await chrome.identity.getAuthToken({ interactive: true });
-        if (!token) {
-          throw new Error("Google Drive に接続できませんでした");
-        }
-
-        const options = await getOptions();
-        await setOptions({ ...options, saveToGoogleDrive: true });
-
-        if (saveToGoogleDrive) {
-          saveToGoogleDrive.checked = true;
-        }
-
-        await chrome.storage.local.set({
-          driveState: { enabled: true },
-        });
-        await this.showLog("Google Drive に接続しました");
+        await connectGoogleDrive();
 
         const result = await chrome.runtime.sendMessage({ type: "drive:retry" });
         if (!result?.ok) {
           throw new Error(result?.error ?? "再送に失敗しました");
         }
       } catch (error) {
-        await this.showLog("Google Drive の接続に失敗しました", "error", error);
+        await this.showLog("Google Drive の操作に失敗しました", "error", error);
       } finally {
-        connectGoogleDrive.disabled = false;
+        connectDriveButton.disabled = false;
+      }
+    });
+
+    disconnectDriveButton?.addEventListener("click", async () => {
+      disconnectDriveButton.disabled = true;
+
+      if (saveToGoogleDrive) {
+        saveToGoogleDrive.checked = false;
+        saveToGoogleDrive.disabled = true;
+      }
+
+      try {
+        await disconnectGoogleDrive();
+      } catch (error) {
+        await this.showLog("Google Drive の解除に失敗しました", "error", error);
+      } finally {
+        disconnectDriveButton.disabled = false;
+        await showDriveStatus();
       }
     });
   }

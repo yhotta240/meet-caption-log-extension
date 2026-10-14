@@ -1,4 +1,9 @@
 import { MIME_TYPES } from "../settings";
+import {
+  getGoogleAccessToken,
+  isGoogleDriveConnected,
+  removeGoogleAccessToken,
+} from "../utils/google-auth";
 import { logError, logInfo } from "../utils/logger";
 import { getOptions } from "../utils/storage";
 
@@ -10,10 +15,7 @@ const UPLOAD_LOCK = "drive-upload";
 const DRIVE_SAVE_PATH_NAME = "meet-caption-log";
 const MEET_ORIGIN = "https://meet.google.com";
 const POPUP_PATH = "popup.html";
-const STORAGE = {
-  logPrefix: "driveLog:",
-  state: "driveState",
-};
+const PENDING_LOG_PREFIX = "driveLog:";
 
 const MESSAGE = {
   save: "drive:save",
@@ -97,11 +99,7 @@ async function upload(log: DriveLog): Promise<void> {
     throw new Error(`ログが${MAX_UPLOAD_MB} MBを超えています`);
   }
 
-  const { token } = await chrome.identity.getAuthToken({ interactive: false });
-
-  if (!token) {
-    throw new Error("Google Drive に再接続してください");
-  }
+  const token = await getGoogleAccessToken();
 
   const { body, contentType } = createUploadBody(log);
   const response = await fetch(UPLOAD_URL, {
@@ -115,7 +113,7 @@ async function upload(log: DriveLog): Promise<void> {
   });
 
   if (response.status === 401) {
-    await chrome.identity.removeCachedAuthToken({ token });
+    await removeGoogleAccessToken(token);
   }
 
   if (!response.ok) {
@@ -132,17 +130,17 @@ async function upload(log: DriveLog): Promise<void> {
 async function sendPending(): Promise<void> {
   // 同時に保存要求が来ても，同じ未送信ログを並行送信しない．
   await navigator.locks.request(UPLOAD_LOCK, async () => {
-    const { driveState } = await chrome.storage.local.get(STORAGE.state);
+    const connected = await isGoogleDriveConnected();
     const options = await getOptions();
 
-    if (!driveState?.enabled || !options.saveToGoogleDrive) {
+    if (!connected || !options.saveToGoogleDrive) {
       return;
     }
 
     const data = await chrome.storage.local.get(null);
 
     for (const [key, log] of Object.entries(data)) {
-      if (!key.startsWith(STORAGE.logPrefix)) {
+      if (!key.startsWith(PENDING_LOG_PREFIX)) {
         continue;
       }
 
@@ -169,9 +167,9 @@ async function storePendingLog(log: unknown, sender: chrome.runtime.MessageSende
     throw new Error("無効な字幕ログです");
   }
 
-  const settings = await chrome.storage.local.get(STORAGE.state);
+  const connected = await isGoogleDriveConnected();
 
-  if (!settings[STORAGE.state]?.enabled) {
+  if (!connected) {
     return false;
   }
 
@@ -180,7 +178,7 @@ async function storePendingLog(log: unknown, sender: chrome.runtime.MessageSende
     return false;
   }
 
-  const key = `${STORAGE.logPrefix}${crypto.randomUUID()}`;
+  const key = `${PENDING_LOG_PREFIX}${crypto.randomUUID()}`;
   await chrome.storage.local.set({ [key]: log });
 
   return true;

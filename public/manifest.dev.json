@@ -12,7 +12,7 @@
     "tabs",
     "identity"
   ],
-  "host_permissions": ["https://www.googleapis.com/*"],
+  "host_permissions": ["https://www.googleapis.com/*", "https://oauth2.googleapis.com/*"],
   "action": {
     "default_popup": "popup.html"
   },
