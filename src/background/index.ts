@@ -1,4 +1,7 @@
 import { logInfo } from "../utils/logger";
+import { setupDrive } from "./drive";
+
+setupDrive();
 
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {

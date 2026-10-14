@@ -155,6 +155,18 @@ async function saveCaptions(): Promise<void> {
   const captionText = captions.map((item) => `\n${item.speaker}:\n ${item.text}\n`).join("");
   const fileContent = `${headerText}${captionText}\n`;
 
+  void (async () => {
+    try {
+      const result = await chrome.runtime.sendMessage({
+        type: "drive:save",
+        log: { fileName, mimeType, content: fileContent },
+      });
+      if (!result?.ok) throw new Error(result?.error ?? "Drive 用ログの保管に失敗しました");
+    } catch (error) {
+      void logError("Drive 用ログの保管に失敗しました", "content", error);
+    }
+  })();
+
   const blob = new Blob([fileContent], { type: mimeType });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");

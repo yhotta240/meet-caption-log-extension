@@ -150,19 +150,63 @@ export class PopupManager {
       }
     });
 
-    // 他の設定項目のイベントリスナー例
+    const driveStatus = document.getElementById("drive-status");
+    const connectGoogleDrive = document.getElementById("connect-google-drive") as HTMLButtonElement | null;
+    const disconnectGoogleDrive = document.getElementById("disconnect-google-drive");
+    const saveToGoogleDrive = document.getElementById("saveToGoogleDrive") as HTMLInputElement | null;
 
-    // チェックボックスの例:
-    // this.notificationToggle?.addEventListener('change', (event) => {
-    //   const checked = (event.target as HTMLInputElement).checked;
-    //   this.updateSettings({ notifications: checked }, `通知を${checked ? '有効' : '無効'}にしました`, '通知の保存に失敗しました');
-    // });
+    const showDriveStatus = async () => {
+      const { driveState } = await chrome.storage.local.get("driveState");
+      const connected = Boolean(driveState?.enabled);
 
-    // スライダーの例:
-    // this.fontSizeRange?.addEventListener('change', (event) => {
-    //   const fontSize = (event.target as HTMLInputElement).value;
-    //   this.updateSettings({ fontSize: Number(fontSize) }, 'フォントサイズを保存しました', 'フォントサイズの保存に失敗しました');
-    // });
+      if (driveStatus) {
+        if (connected) {
+          driveStatus.textContent = "接続済み";
+        } else {
+          driveStatus.textContent = "未接続";
+        }
+      }
+
+      if (connectGoogleDrive) {
+        connectGoogleDrive.hidden = connected;
+      }
+
+      if (disconnectGoogleDrive) {
+        disconnectGoogleDrive.hidden = !connected;
+      }
+
+      if (saveToGoogleDrive) {
+        saveToGoogleDrive.disabled = !connected;
+      }
+    };
+    void showDriveStatus().catch(() => { });
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === "local" && changes.driveState) void showDriveStatus().catch(() => { });
+    });
+
+    connectGoogleDrive?.addEventListener("click", async () => {
+      connectGoogleDrive.disabled = true;
+      try {
+        const { token } = await chrome.identity.getAuthToken({ interactive: true });
+        if (!token) {
+          throw new Error("Google Drive に接続できませんでした");
+        }
+
+        await chrome.storage.local.set({
+          driveState: { enabled: true },
+          driveStatus: "Google Drive に接続しました",
+        });
+
+        const result = await chrome.runtime.sendMessage({ type: "drive:retry" });
+        if (!result?.ok) {
+          throw new Error(result?.error ?? "再送に失敗しました");
+        }
+      } catch (error) {
+        await this.showLog("Google Drive の接続に失敗しました", "error", error);
+      } finally {
+        connectGoogleDrive.disabled = false;
+      }
+    });
   }
 
   // biome-ignore lint/correctness/noUnusedPrivateClassMembers: 設定を更新する際はこの関数を呼び出してください
