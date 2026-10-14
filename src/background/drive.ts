@@ -7,7 +7,8 @@ import {
 import { logError, logInfo } from "../utils/logger";
 import { getOptions } from "../utils/storage";
 
-const UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id";
+const UPLOAD_URL =
+  "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id";
 const MAX_UPLOAD_MB = 5;
 const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
 const UPLOAD_TIMEOUT_MS = 20_000;
@@ -162,7 +163,10 @@ async function sendPending(): Promise<void> {
  * 保管せずに false を返す場合もある（Drive 保存が無効化されている場合など）．
  * 無効な字幕ログの場合は例外を投げる．
  */
-async function storePendingLog(log: unknown, sender: chrome.runtime.MessageSender): Promise<boolean> {
+async function storePendingLog(
+  log: unknown,
+  sender: chrome.runtime.MessageSender,
+): Promise<boolean> {
   if (!sender.tab || !sender.url?.startsWith(`${MEET_ORIGIN}/`) || !isDriveLog(log)) {
     throw new Error("無効な字幕ログです");
   }
@@ -204,7 +208,11 @@ async function reportError(error: unknown): Promise<void> {
   }
 }
 
-async function handleMessage(message: DriveMessage, sender: chrome.runtime.MessageSender, respond: Respond): Promise<void> {
+async function handleMessage(
+  message: DriveMessage,
+  sender: chrome.runtime.MessageSender,
+  respond: Respond,
+): Promise<void> {
   if (message.type === MESSAGE.save) {
     const stored = await storePendingLog(message.log, sender);
 

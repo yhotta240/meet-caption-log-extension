@@ -156,9 +156,15 @@ export class PopupManager {
     });
 
     const driveStatus = document.getElementById("drive-status");
-    const connectDriveButton = document.getElementById("connect-google-drive") as HTMLButtonElement | null;
-    const disconnectDriveButton = document.getElementById("disconnect-google-drive") as HTMLButtonElement | null;
-    const saveToGoogleDrive = document.getElementById("saveToGoogleDrive") as HTMLInputElement | null;
+    const connectDriveButton = document.getElementById(
+      "connect-google-drive",
+    ) as HTMLButtonElement | null;
+    const disconnectDriveButton = document.getElementById(
+      "disconnect-google-drive",
+    ) as HTMLButtonElement | null;
+    const saveToGoogleDrive = document.getElementById(
+      "saveToGoogleDrive",
+    ) as HTMLInputElement | null;
 
     const showDriveStatus = async () => {
       const connected = await isGoogleDriveConnected();
@@ -185,9 +191,9 @@ export class PopupManager {
         saveToGoogleDrive.disabled = !connected;
       }
     };
-    void showDriveStatus().catch(() => { });
+    void showDriveStatus().catch(() => {});
     chrome.storage.onChanged.addListener((changes, area) => {
-      if (area === "local" && changes.driveState) void showDriveStatus().catch(() => { });
+      if (area === "local" && changes.driveState) void showDriveStatus().catch(() => {});
     });
 
     connectDriveButton?.addEventListener("click", async () => {
