@@ -133,34 +133,48 @@ function downloadHistory(entry: CaptionHistoryEntry): void {
 }
 
 function createHistoryItem(entry: CaptionHistoryEntry, notify: Notify | undefined): HTMLLIElement {
+  const fileName = entry.fileName || "captions";
+  const savedAt = formatSavedAt(entry.savedAt);
   const item = document.createElement("li");
-  item.className = "list-group-item";
+  item.className = "list-group-item px-3 py-1";
 
   const header = document.createElement("div");
-  header.className = "d-flex justify-content-between align-items-center mb-1 gap-2";
+  header.className = "d-flex align-items-start gap-2";
 
   const metadata = document.createElement("div");
+  metadata.className = "flex-grow-1 overflow-hidden";
   const title = document.createElement("span");
-  title.className = "fw-bold text-break";
-  title.textContent = `${entry.fileName || "captions"} (${formatFileType(entry.fileFormat)})`;
+  title.className = "d-block fw-semibold text-truncate";
+  title.textContent = fileName;
+  title.title = fileName;
   const date = document.createElement("small");
-  date.className = "text-muted ms-2";
-  date.textContent = formatSavedAt(entry.savedAt);
+  date.className = "d-block text-body-secondary";
+  date.textContent = `${savedAt} · ${formatFileType(entry.fileFormat).toUpperCase()}`;
   metadata.append(title, date);
 
   const actions = document.createElement("div");
-  actions.className = "d-flex gap-2 flex-shrink-0";
+  actions.className = "d-flex gap-1 flex-shrink-0";
 
   const downloadButton = document.createElement("button");
   downloadButton.type = "button";
-  downloadButton.className = "btn btn-sm btn-outline-primary";
-  downloadButton.textContent = "ダウンロード";
+  downloadButton.className = "btn btn-sm btn-link text-secondary p-1";
+  downloadButton.title = "ダウンロード";
+  downloadButton.setAttribute("aria-label", `${fileName}（${savedAt}）をダウンロード`);
+  const downloadIcon = document.createElement("i");
+  downloadIcon.className = "bi bi-download";
+  downloadIcon.setAttribute("aria-hidden", "true");
+  downloadButton.append(downloadIcon);
   downloadButton.addEventListener("click", () => downloadHistory(entry));
 
   const deleteButton = document.createElement("button");
   deleteButton.type = "button";
-  deleteButton.className = "btn btn-sm btn-outline-danger";
-  deleteButton.textContent = "削除";
+  deleteButton.className = "btn btn-sm btn-link text-danger p-1";
+  deleteButton.title = "削除";
+  deleteButton.setAttribute("aria-label", `${fileName}（${savedAt}）を削除`);
+  const deleteIcon = document.createElement("i");
+  deleteIcon.className = "bi bi-trash";
+  deleteIcon.setAttribute("aria-hidden", "true");
+  deleteButton.append(deleteIcon);
   deleteButton.addEventListener("click", () => {
     void deleteHistory(entry.savedAt, notify);
   });
@@ -168,27 +182,30 @@ function createHistoryItem(entry: CaptionHistoryEntry, notify: Notify | undefine
   actions.append(downloadButton, deleteButton);
   header.append(metadata, actions);
 
-  const preview = document.createElement("div");
-  preview.className = "small text-muted text-break";
+  const details = document.createElement("details");
+  details.className = "history-content small text-body-secondary mt-1";
+  const summary = document.createElement("summary");
+  summary.className = "d-flex align-items-center gap-2";
+  summary.setAttribute("aria-label", `${fileName}（${savedAt}）の内容`);
+  const chevron = document.createElement("i");
+  chevron.className = "bi bi-chevron-right history-chevron";
+  chevron.setAttribute("aria-hidden", "true");
+  const preview = document.createElement("span");
+  preview.className = "text-truncate";
   preview.textContent = buildPreview(entry.content);
+  const close = document.createElement("span");
+  close.className = "history-close";
+  close.textContent = "閉じる";
 
   const full = document.createElement("pre");
-  full.className = "small mt-2 mb-0";
-  full.style.whiteSpace = "pre-wrap";
-  full.hidden = true;
+  full.className = "text-body text-break overflow-auto mt-1 mb-0";
+  full.tabIndex = 0;
+  full.setAttribute("aria-label", `${fileName} のログ本文`);
   full.textContent = entry.content;
 
-  const moreButton = document.createElement("button");
-  moreButton.type = "button";
-  moreButton.className = "btn btn-link btn-sm ps-0";
-  moreButton.textContent = "もっと見る";
-  moreButton.addEventListener("click", () => {
-    full.hidden = !full.hidden;
-    preview.hidden = !full.hidden;
-    moreButton.textContent = full.hidden ? "もっと見る" : "閉じる";
-  });
-
-  item.append(header, preview, moreButton, full);
+  summary.append(chevron, preview, close);
+  details.append(summary, full);
+  item.append(header, details);
   return item;
 }
 

@@ -41,6 +41,24 @@ html {
   transition: none !important;
 }
 
+.history-content summary {
+  cursor: pointer;
+}
+
+.history-content:not([open]) .history-close,
+.history-content[open] .text-truncate {
+  display: none;
+}
+
+.history-content[open] .history-chevron {
+  transform: rotate(90deg);
+}
+
+.history-content pre {
+  max-height: 14rem;
+  white-space: pre-wrap;
+}
+
 #document .md-tip {
   border-inline-start: 0.25rem solid var(--bs-success, #198754);
   padding: 0.5rem 1rem;
