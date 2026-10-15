@@ -9,8 +9,10 @@
   },
   "permissions": [
     "storage",
-    "tabs"
+    "tabs",
+    "identity"
   ],
+  "host_permissions": ["https://www.googleapis.com/*", "https://oauth2.googleapis.com/*"],
   "action": {
     "default_popup": "popup.html"
   },
@@ -27,5 +29,12 @@
         "content.js"
       ]
     }
-  ]
+  ],
+  "oauth2": {
+    "client_id": "747371567995-9eh26h1rn1o6u3aick7tfpm9pb9jd4ag.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/drive.file"
+    ]
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxElGcy7S3phYLEpqq/OAjZlZ3hBZFfxIKy/FDwJwd5xpLUZ4iY6t3tpPm3tCaeErl7tMmbjHHEM+j0IQIZPkBo9jvb0qRBAdfFDLYe/CBSmuhphS3SmwGeDVFclaPPUdiCkmG9SwNDu+nG0ShtQ/okpxGdKi807I12xIOFGYN8rV8Ck+wOADV5cE0gWGLOfCfvfQORnbWowAwmKeJIYBHmFcK223ldMQN/f/jOeyjNPeW8Ln+ZfJ5aHfX14KT86oB2MkmjMw+TVN5E/NosQU8fwSDnY+qZ3hpGnmIoO3ClHe0SGU+uVskXrcxAiWGFyiCPLS0Lu2QAOZpY3MuCND2wIDAQAB"
 }

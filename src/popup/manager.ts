@@ -1,6 +1,11 @@
 import meta from "../../public/manifest.meta.json";
 import { DEFAULT_SETTINGS, type Settings } from "../settings";
 import {
+  connectGoogleDrive,
+  disconnectGoogleDrive,
+  isGoogleDriveConnected,
+} from "../utils/google-auth";
+import {
   addLog,
   clearLogs,
   getLogs,
@@ -8,7 +13,7 @@ import {
   type LogEntry,
   type LogLevel,
 } from "../utils/logger";
-import { getSettings, isEnabled, setEnabled, setSettings } from "../utils/storage";
+import { getOptions, getSettings, isEnabled, setEnabled, setSettings } from "../utils/storage";
 import { setupCaptionSettings } from "./components/captions";
 import { setupDocumentTab } from "./components/document";
 import { setupInfoTab } from "./components/info";
@@ -150,19 +155,80 @@ export class PopupManager {
       }
     });
 
-    // 他の設定項目のイベントリスナー例
+    const driveStatus = document.getElementById("drive-status");
+    const connectDriveButton = document.getElementById(
+      "connect-google-drive",
+    ) as HTMLButtonElement | null;
+    const disconnectDriveButton = document.getElementById(
+      "disconnect-google-drive",
+    ) as HTMLButtonElement | null;
+    const saveToGoogleDrive = document.getElementById(
+      "saveToGoogleDrive",
+    ) as HTMLInputElement | null;
 
-    // チェックボックスの例:
-    // this.notificationToggle?.addEventListener('change', (event) => {
-    //   const checked = (event.target as HTMLInputElement).checked;
-    //   this.updateSettings({ notifications: checked }, `通知を${checked ? '有効' : '無効'}にしました`, '通知の保存に失敗しました');
-    // });
+    const showDriveStatus = async () => {
+      const connected = await isGoogleDriveConnected();
+      const options = await getOptions();
 
-    // スライダーの例:
-    // this.fontSizeRange?.addEventListener('change', (event) => {
-    //   const fontSize = (event.target as HTMLInputElement).value;
-    //   this.updateSettings({ fontSize: Number(fontSize) }, 'フォントサイズを保存しました', 'フォントサイズの保存に失敗しました');
-    // });
+      if (driveStatus) {
+        if (connected) {
+          driveStatus.textContent = "接続済み";
+        } else {
+          driveStatus.textContent = "未接続";
+        }
+      }
+
+      if (connectDriveButton) {
+        connectDriveButton.hidden = connected;
+      }
+
+      if (disconnectDriveButton) {
+        disconnectDriveButton.hidden = !connected;
+      }
+
+      if (saveToGoogleDrive) {
+        saveToGoogleDrive.checked = options.saveToGoogleDrive;
+        saveToGoogleDrive.disabled = !connected;
+      }
+    };
+    void showDriveStatus().catch(() => {});
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === "local" && changes.driveState) void showDriveStatus().catch(() => {});
+    });
+
+    connectDriveButton?.addEventListener("click", async () => {
+      connectDriveButton.disabled = true;
+      try {
+        await connectGoogleDrive();
+
+        const result = await chrome.runtime.sendMessage({ type: "drive:retry" });
+        if (!result?.ok) {
+          throw new Error(result?.error ?? "再送に失敗しました");
+        }
+      } catch (error) {
+        await this.showLog("Google Drive の操作に失敗しました", "error", error);
+      } finally {
+        connectDriveButton.disabled = false;
+      }
+    });
+
+    disconnectDriveButton?.addEventListener("click", async () => {
+      disconnectDriveButton.disabled = true;
+
+      if (saveToGoogleDrive) {
+        saveToGoogleDrive.checked = false;
+        saveToGoogleDrive.disabled = true;
+      }
+
+      try {
+        await disconnectGoogleDrive();
+      } catch (error) {
+        await this.showLog("Google Drive の解除に失敗しました", "error", error);
+      } finally {
+        disconnectDriveButton.disabled = false;
+        await showDriveStatus();
+      }
+    });
   }
 
   // biome-ignore lint/correctness/noUnusedPrivateClassMembers: 設定を更新する際はこの関数を呼び出してください

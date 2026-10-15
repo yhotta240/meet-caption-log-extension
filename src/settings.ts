@@ -11,6 +11,7 @@ export type CaptionOptions = {
   saveOnTabClose: boolean;
   saveHistory: boolean;
   showCaptionsOnStart: boolean;
+  saveToGoogleDrive: boolean;
 };
 
 export type CaptionHistoryEntry = {
@@ -49,6 +50,7 @@ export const DEFAULT_OPTIONS: CaptionOptions = {
   saveOnTabClose: true,
   saveHistory: false,
   showCaptionsOnStart: false,
+  saveToGoogleDrive: false,
 };
 
 export const MIME_TYPES: Record<CaptionFileFormat, string> = {

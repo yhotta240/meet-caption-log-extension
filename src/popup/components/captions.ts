@@ -56,11 +56,15 @@ function applyOptions(options: CaptionOptions): void {
   const saveOnTabClose = element<HTMLInputElement>("saveOnTabClose");
   const saveHistory = element<HTMLInputElement>("saveHistory");
   const showCaptionsOnStart = element<HTMLInputElement>("showCaptionsOnStart");
+  const saveToGoogleDrive = element<HTMLInputElement>("saveToGoogleDrive");
 
   if (saveOnEndCall) saveOnEndCall.checked = options.saveOnEndCall;
   if (saveOnTabClose) saveOnTabClose.checked = options.saveOnTabClose;
   if (saveHistory) saveHistory.checked = options.saveHistory;
   if (showCaptionsOnStart) showCaptionsOnStart.checked = options.showCaptionsOnStart;
+  if (saveToGoogleDrive) {
+    saveToGoogleDrive.checked = options.saveToGoogleDrive;
+  }
 }
 
 async function saveCaptionSettings(notify: Notify | undefined): Promise<void> {
@@ -88,6 +92,8 @@ async function saveCaptionOptions(notify: Notify | undefined): Promise<void> {
     showCaptionsOnStart:
       element<HTMLInputElement>("showCaptionsOnStart")?.checked ??
       DEFAULT_OPTIONS.showCaptionsOnStart,
+    saveToGoogleDrive:
+      element<HTMLInputElement>("saveToGoogleDrive")?.checked ?? DEFAULT_OPTIONS.saveToGoogleDrive,
   };
   await setOptions(options);
   await notify?.("オプションが保存されました");
@@ -281,7 +287,13 @@ export async function setupCaptionSettings(notify?: Notify): Promise<void> {
     void notify?.("設定をリセットしました");
   });
 
-  for (const id of ["saveOnEndCall", "saveOnTabClose", "saveHistory", "showCaptionsOnStart"]) {
+  for (const id of [
+    "saveOnEndCall",
+    "saveOnTabClose",
+    "saveHistory",
+    "showCaptionsOnStart",
+    "saveToGoogleDrive",
+  ]) {
     element<HTMLInputElement>(id)?.addEventListener("change", () => {
       void saveCaptionOptions(notify).catch((error) => {
         console.error("オプションの保存に失敗しました", error);

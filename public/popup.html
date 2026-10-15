@@ -170,6 +170,21 @@
             <input class="form-check-input" type="checkbox" id="showCaptionsOnStart">
             <label class="form-check-label" for="showCaptionsOnStart">通話開始時に字幕を表示する</label>
           </div>
+          <div class="border-top mt-3 pt-3">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+              <img src="https://www.google.com/s2/favicons?domain=https://drive.google.com&sz=32" width="22" height="22" alt="" class="flex-shrink-0">
+              <h6 class="mb-0">Google Drive</h6>
+              <div id="drive-status" class="small text-body-secondary" role="status">未接続</div>
+              <div class="ms-auto flex-shrink-0">
+                <button type="button" class="btn btn-sm btn-success" id="connect-google-drive">接続</button>
+                <button type="button" class="btn btn-sm btn-danger" id="disconnect-google-drive" hidden>解除</button>
+              </div>
+            </div>
+            <div class="form-check mt-3">
+              <input class="form-check-input" type="checkbox" id="saveToGoogleDrive" disabled>
+              <label class="form-check-label" for="saveToGoogleDrive">Google Drive にログを保存する</label>
+            </div>
+          </div>
         </div>
       </fieldset>
     </div>
