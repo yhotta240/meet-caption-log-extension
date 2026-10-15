@@ -37,18 +37,21 @@ export async function disconnectGoogleDrive(): Promise<void> {
   const options = await getOptions();
   await setOptions({ ...options, saveToGoogleDrive: false });
 
-  const token = await getGoogleAccessToken();
-  const response = await fetch(REVOKE_URL, {
-    method: "POST",
-    body: new URLSearchParams({ token }),
-    signal: AbortSignal.timeout(REVOKE_TIMEOUT_MS),
-  });
+  try {
+    const token = await getGoogleAccessToken();
+    const response = await fetch(REVOKE_URL, {
+      method: "POST",
+      body: new URLSearchParams({ token }),
+      signal: AbortSignal.timeout(REVOKE_TIMEOUT_MS),
+    });
 
-  if (!response.ok) {
-    throw new Error(`Google Drive の解除に失敗しました（HTTP ${response.status}）`);
+    if (!response.ok) {
+      throw new Error(`Google Drive の解除に失敗しました（HTTP ${response.status}）`);
+    }
+  } finally {
+    await chrome.identity.clearAllCachedAuthTokens();
+    await chrome.storage.local.set({ [STATE_KEY]: { enabled: false } });
   }
 
-  await chrome.identity.clearAllCachedAuthTokens();
-  await chrome.storage.local.set({ [STATE_KEY]: { enabled: false } });
   await logInfo("Google Drive の接続を解除しました", "popup");
 }
