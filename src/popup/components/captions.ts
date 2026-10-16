@@ -107,6 +107,7 @@ function setupSaveDestinations(
     }
     if (!drive.checked && !local?.checked) {
       drive.checked = true;
+      await retryGoogleDriveLogs();
       return;
     }
 
