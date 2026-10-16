@@ -10,14 +10,12 @@ import {
   MIME_TYPES,
   normalizeCaptionFileFormat,
 } from "../../settings";
-import {
-  getHistory,
-  getOptions,
-  getSettings,
-  setHistory,
-  setOptions,
-  setSettings,
-} from "../../utils/storage";
+import { getHistory, getOptions, getSettings, setHistory, setStorage } from "../../utils/storage";
+
+type CaptionConfig = {
+  settings: CaptionSettings;
+  options: CaptionOptions;
+};
 
 const DEFAULT_HEADERS: Record<CaptionFileFormat, string> = {
   txt: DEFAULT_HEADER_TEXT,
@@ -67,23 +65,19 @@ function applyOptions(options: CaptionOptions): void {
   }
 }
 
-async function saveCaptionSettings(notify: Notify | undefined): Promise<void> {
+function readCaptionSettings(): CaptionSettings {
   const fileName = element<HTMLInputElement>("fileName");
   const fileFormat = element<HTMLSelectElement>("fileFormat");
   const headerText = element<HTMLTextAreaElement>("headerText");
-  if (!fileName || !fileFormat || !headerText) return;
-
-  const settings: CaptionSettings = {
-    fileName: fileName.value.trim() || DEFAULT_SETTINGS.fileName,
-    fileFormat: normalizeCaptionFileFormat(fileFormat.value),
-    headerText: headerText.value,
+  return {
+    fileName: fileName?.value.trim() || DEFAULT_SETTINGS.fileName,
+    fileFormat: normalizeCaptionFileFormat(fileFormat?.value),
+    headerText: headerText?.value ?? DEFAULT_SETTINGS.headerText,
   };
-  await setSettings(settings);
-  await notify?.("設定が保存されました");
 }
 
-async function saveCaptionOptions(notify: Notify | undefined): Promise<void> {
-  const options: CaptionOptions = {
+function readCaptionOptions(): CaptionOptions {
+  return {
     saveOnEndCall:
       element<HTMLInputElement>("saveOnEndCall")?.checked ?? DEFAULT_OPTIONS.saveOnEndCall,
     saveOnTabClose:
@@ -95,8 +89,6 @@ async function saveCaptionOptions(notify: Notify | undefined): Promise<void> {
     saveToGoogleDrive:
       element<HTMLInputElement>("saveToGoogleDrive")?.checked ?? DEFAULT_OPTIONS.saveToGoogleDrive,
   };
-  await setOptions(options);
-  await notify?.("オプションが保存されました");
 }
 
 function formatFileType(fileFormat: string): CaptionFileFormat {
@@ -241,11 +233,12 @@ async function deleteHistory(savedAt: string, notify: Notify | undefined): Promi
 }
 
 export async function setupCaptionSettings(notify?: Notify): Promise<void> {
+  const fileName = element<HTMLInputElement>("fileName");
   const fileFormat = element<HTMLSelectElement>("fileFormat");
   const headerText = element<HTMLTextAreaElement>("headerText");
-  const saveButton = element<HTMLButtonElement>("saveButton");
   const resetButton = element<HTMLButtonElement>("resetButton");
-  if (!fileFormat || !headerText || !saveButton || !resetButton) return;
+  const status = element<HTMLElement>("settings-save-status");
+  if (!fileName || !fileFormat || !headerText || !resetButton || !status) return;
 
   const [settings, options, history] = await Promise.all([
     getSettings(),
@@ -256,14 +249,77 @@ export async function setupCaptionSettings(notify?: Notify): Promise<void> {
   applyOptions(options);
   renderHistory(history, notify);
 
+  const readValues = (): CaptionConfig => ({
+    settings: { ...settings, ...readCaptionSettings() },
+    options: { ...options, ...readCaptionOptions() },
+  });
+  let saving = false;
+  let pendingValues: CaptionConfig | undefined;
+  let savedValues = JSON.stringify(readValues());
+
+  const showStatus = (message: string, failed = false): void => {
+    status.textContent = message;
+    status.classList.toggle("text-danger", failed);
+    status.classList.toggle("text-body-secondary", !failed);
+  };
+
+  const persistValues = async (next: CaptionConfig): Promise<void> => {
+    if (element<HTMLInputElement>("saveToGoogleDrive")?.disabled) {
+      next.options.saveToGoogleDrive = false;
+    }
+
+    const values = JSON.stringify(next);
+    if (values === savedValues) return;
+
+    showStatus("保存中…");
+    try {
+      await setStorage(next);
+      savedValues = values;
+      const savedAt = new Date().toLocaleTimeString("ja-JP", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      showStatus(`保存済み ${savedAt}`);
+    } catch (error) {
+      showStatus("保存できませんでした", true);
+      console.error("設定の保存に失敗しました", error);
+    }
+  };
+
+  const save = async (): Promise<void> => {
+    pendingValues = readValues();
+    if (saving) return;
+
+    saving = true;
+    try {
+      while (pendingValues) {
+        const next = pendingValues;
+        pendingValues = undefined;
+        await persistValues(next);
+      }
+    } finally {
+      saving = false;
+    }
+  };
+
+  for (const input of [fileName, headerText]) {
+    input.addEventListener("input", (event) => {
+      if (!(event as InputEvent).isComposing) save();
+    });
+    input.addEventListener("compositionend", save);
+  }
+
   document.getElementById("insertMeetStart")?.addEventListener("click", () => {
     insertTag(headerText, "{meet開始時刻}");
+    save();
   });
   document.getElementById("insertCaptionStart")?.addEventListener("click", () => {
     insertTag(headerText, "{字幕ログ開始時刻}");
+    save();
   });
   document.getElementById("insertCaptionEnd")?.addEventListener("click", () => {
     insertTag(headerText, "{字幕ログ終了時刻}");
+    save();
   });
 
   fileFormat.addEventListener("change", () => {
@@ -271,20 +327,14 @@ export async function setupCaptionSettings(notify?: Notify): Promise<void> {
     if (!headerText.value.trim() || Object.values(DEFAULT_HEADERS).includes(headerText.value)) {
       headerText.value = DEFAULT_HEADERS[format];
     }
-  });
-
-  saveButton.addEventListener("click", () => {
-    void saveCaptionSettings(notify).catch((error) => {
-      console.error("設定の保存に失敗しました", error);
-    });
+    save();
   });
 
   resetButton.addEventListener("click", () => {
-    const fileName = element<HTMLInputElement>("fileName");
-    if (fileName) fileName.value = DEFAULT_SETTINGS.fileName;
+    fileName.value = DEFAULT_SETTINGS.fileName;
     fileFormat.value = DEFAULT_SETTINGS.fileFormat;
     headerText.value = DEFAULT_HEADERS[DEFAULT_SETTINGS.fileFormat];
-    void notify?.("設定をリセットしました");
+    save();
   });
 
   for (const id of [
@@ -294,11 +344,7 @@ export async function setupCaptionSettings(notify?: Notify): Promise<void> {
     "showCaptionsOnStart",
     "saveToGoogleDrive",
   ]) {
-    element<HTMLInputElement>(id)?.addEventListener("change", () => {
-      void saveCaptionOptions(notify).catch((error) => {
-        console.error("オプションの保存に失敗しました", error);
-      });
-    });
+    element<HTMLInputElement>(id)?.addEventListener("change", save);
   }
 
   chrome.storage.onChanged.addListener((changes, area) => {
