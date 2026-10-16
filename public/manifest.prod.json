@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Google Meet Captions Logger - Google Meet 字幕ログ",
   "short_name": "Meet Captions Logger",
-  "version": "1.10.1",
+  "version": "1.11.0",
   "description": "Google Meetの会議中に表示される字幕を保存します",
   "icons": {
     "48": "icons/icon.png"
@@ -11,7 +11,10 @@
     "storage",
     "identity"
   ],
-  "host_permissions": ["https://www.googleapis.com/*", "https://oauth2.googleapis.com/*"],
+  "host_permissions": [
+    "https://www.googleapis.com/*",
+    "https://oauth2.googleapis.com/*"
+  ],
   "action": {
     "default_popup": "popup.html"
   },
