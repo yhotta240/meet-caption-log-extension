@@ -5,6 +5,7 @@ import {
   type CaptionSettings,
   DEFAULT_HEADER_TEXT,
   DEFAULT_MARKDOWN_HEADER_TEXT,
+  DEFAULT_OPTIONS,
   DEFAULT_SETTINGS,
   MIME_TYPES,
   normalizeCaptionFileFormat,
@@ -19,6 +20,11 @@ import {
 } from "../../utils/storage";
 
 const CONFIG_SAVE_LOCK = "caption-config-save";
+
+const SAVE_DESTINATIONS = {
+  local: "saveToLocal",
+  drive: "saveToGoogleDrive",
+} as const;
 
 const DEFAULT_HEADERS: Record<CaptionFileFormat, string> = {
   txt: DEFAULT_HEADER_TEXT,
@@ -57,15 +63,59 @@ function applyOptions(options: CaptionOptions): void {
   const saveOnTabClose = element<HTMLInputElement>("saveOnTabClose");
   const saveHistory = element<HTMLInputElement>("saveHistory");
   const showCaptionsOnStart = element<HTMLInputElement>("showCaptionsOnStart");
-  const saveToGoogleDrive = element<HTMLInputElement>("saveToGoogleDrive");
+  const saveToLocal = element<HTMLInputElement>(SAVE_DESTINATIONS.local);
+  const saveToGoogleDrive = element<HTMLInputElement>(SAVE_DESTINATIONS.drive);
 
   if (saveOnEndCall) saveOnEndCall.checked = options.saveOnEndCall;
   if (saveOnTabClose) saveOnTabClose.checked = options.saveOnTabClose;
   if (saveHistory) saveHistory.checked = options.saveHistory;
   if (showCaptionsOnStart) showCaptionsOnStart.checked = options.showCaptionsOnStart;
+  if (saveToLocal) saveToLocal.checked = options.saveToLocal;
   if (saveToGoogleDrive) {
     saveToGoogleDrive.checked = options.saveToGoogleDrive;
   }
+}
+
+async function retryGoogleDriveLogs(): Promise<void> {
+  try {
+    const result = await chrome.runtime.sendMessage({ type: "drive:retry" });
+    if (!result?.ok) {
+      throw new Error(result?.error ?? "再送に失敗しました");
+    }
+  } catch (error) {
+    console.error("未送信ログの再送に失敗しました", error);
+  }
+}
+
+function setupSaveDestinations(
+  saveOptions: (changes: Partial<CaptionOptions>) => Promise<boolean>,
+): void {
+  const local = element<HTMLInputElement>(SAVE_DESTINATIONS.local);
+  const drive = element<HTMLInputElement>(SAVE_DESTINATIONS.drive);
+
+  local?.addEventListener("change", () => {
+    if (!local.checked && !drive?.checked) {
+      local.checked = true;
+      return;
+    }
+    void saveOptions({ saveToLocal: local.checked });
+  });
+
+  drive?.addEventListener("change", async () => {
+    if (drive.disabled) {
+      return;
+    }
+    if (!drive.checked && !local?.checked) {
+      drive.checked = true;
+      return;
+    }
+
+    const checked = drive.checked;
+    const saved = await saveOptions({ saveToGoogleDrive: checked });
+    if (saved && checked) {
+      await retryGoogleDriveLogs();
+    }
+  });
 }
 
 function formatFileType(fileFormat: string): CaptionFileFormat {
@@ -251,7 +301,7 @@ export async function setupCaptionSettings(notify?: Notify): Promise<void> {
     showStatus(`保存済み ${savedAt}`);
   };
 
-  const save = async (fields: string[], write: () => Promise<void>): Promise<void> => {
+  const save = async (fields: string[], write: () => Promise<void>): Promise<boolean> => {
     pendingSaves += 1;
     updateSaveStatus();
     try {
@@ -259,11 +309,13 @@ export async function setupCaptionSettings(notify?: Notify): Promise<void> {
       for (const field of fields) {
         failedFields.delete(field);
       }
+      return true;
     } catch (error) {
       for (const field of fields) {
         failedFields.add(field);
       }
       console.error("設定の保存に失敗しました", error);
+      return false;
     } finally {
       pendingSaves -= 1;
       updateSaveStatus();
@@ -277,10 +329,15 @@ export async function setupCaptionSettings(notify?: Notify): Promise<void> {
     });
   };
 
-  const saveOptions = async (changes: Partial<CaptionOptions>): Promise<void> => {
-    await save(Object.keys(changes), async () => {
+  const saveOptions = async (changes: Partial<CaptionOptions>): Promise<boolean> => {
+    return await save(Object.keys(changes), async () => {
       const current = await getOptions();
-      await setOptions({ ...current, ...changes });
+      const options = { ...current, ...changes };
+      if (!options.saveToLocal && !options.saveToGoogleDrive) {
+        applyOptions(current);
+        return;
+      }
+      await setOptions(options);
     });
   };
 
@@ -330,22 +387,21 @@ export async function setupCaptionSettings(notify?: Notify): Promise<void> {
     void saveSettings(DEFAULT_SETTINGS);
   });
 
-  for (const id of [
-    "saveOnEndCall",
-    "saveOnTabClose",
-    "saveHistory",
-    "showCaptionsOnStart",
-    "saveToGoogleDrive",
-  ]) {
+  setupSaveDestinations(saveOptions);
+
+  for (const id of ["saveOnEndCall", "saveOnTabClose", "saveHistory", "showCaptionsOnStart"]) {
     const checkbox = element<HTMLInputElement>(id);
-    if (!checkbox) continue;
-    checkbox.addEventListener("change", () => {
-      if (checkbox.disabled) return;
-      void saveOptions({ [id]: checkbox.checked });
+    checkbox?.addEventListener("change", () => {
+      if (!checkbox.disabled) {
+        void saveOptions({ [id]: checkbox.checked });
+      }
     });
   }
 
   chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && changes.options) {
+      applyOptions({ ...DEFAULT_OPTIONS, ...changes.options.newValue });
+    }
     if (area === "local" && changes.history) {
       renderHistory(
         Array.isArray(changes.history.newValue) ? changes.history.newValue : [],

@@ -11,6 +11,7 @@ export type CaptionOptions = {
   saveOnTabClose: boolean;
   saveHistory: boolean;
   showCaptionsOnStart: boolean;
+  saveToLocal: boolean;
   saveToGoogleDrive: boolean;
 };
 
@@ -50,6 +51,7 @@ export const DEFAULT_OPTIONS: CaptionOptions = {
   saveOnTabClose: true,
   saveHistory: false,
   showCaptionsOnStart: false,
+  saveToLocal: true,
   saveToGoogleDrive: false,
 };
 

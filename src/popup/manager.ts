@@ -165,6 +165,7 @@ export class PopupManager {
     const saveToGoogleDrive = document.getElementById(
       "saveToGoogleDrive",
     ) as HTMLInputElement | null;
+    const saveToLocal = document.getElementById("saveToLocal") as HTMLInputElement | null;
 
     const showDriveStatus = async () => {
       const connected = await isGoogleDriveConnected();
@@ -190,6 +191,9 @@ export class PopupManager {
         saveToGoogleDrive.checked = options.saveToGoogleDrive;
         saveToGoogleDrive.disabled = !connected;
       }
+      if (saveToLocal) {
+        saveToLocal.checked = options.saveToLocal;
+      }
     };
     void showDriveStatus().catch(() => {});
     chrome.storage.onChanged.addListener((changes, area) => {
@@ -200,11 +204,6 @@ export class PopupManager {
       connectDriveButton.disabled = true;
       try {
         await connectGoogleDrive();
-
-        const result = await chrome.runtime.sendMessage({ type: "drive:retry" });
-        if (!result?.ok) {
-          throw new Error(result?.error ?? "再送に失敗しました");
-        }
       } catch (error) {
         await this.showLog("Google Drive の操作に失敗しました", "error", error);
       } finally {
@@ -218,6 +217,9 @@ export class PopupManager {
       if (saveToGoogleDrive) {
         saveToGoogleDrive.checked = false;
         saveToGoogleDrive.disabled = true;
+      }
+      if (saveToLocal) {
+        saveToLocal.checked = true;
       }
 
       try {
