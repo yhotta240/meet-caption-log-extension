@@ -138,6 +138,21 @@
           </div>
         </div>
         <div class="list-group-item">
+          <fieldset class="row g-2 align-items-center">
+            <legend class="col-4 col-form-label py-0 mb-0">保存先:</legend>
+            <div class="col-8 d-flex flex-wrap gap-3">
+              <div class="form-check mb-0">
+                <input class="form-check-input" type="checkbox" id="saveToLocal" checked>
+                <label class="form-check-label" for="saveToLocal">このPC</label>
+              </div>
+              <div class="form-check mb-0">
+                <input class="form-check-input" type="checkbox" id="saveToGoogleDrive" disabled>
+                <label class="form-check-label" for="saveToGoogleDrive">Google Drive</label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div class="list-group-item">
           <label for="headerText" class="form-label">先頭に付ける文章:</label>
           <textarea class="form-control" id="headerText" rows="7"></textarea>
           <div class="d-flex flex-wrap gap-1 my-2">
@@ -179,10 +194,6 @@
                 <button type="button" class="btn btn-sm btn-success" id="connect-google-drive">接続</button>
                 <button type="button" class="btn btn-sm btn-danger" id="disconnect-google-drive" hidden>解除</button>
               </div>
-            </div>
-            <div class="form-check mt-3">
-              <input class="form-check-input" type="checkbox" id="saveToGoogleDrive" disabled>
-              <label class="form-check-label" for="saveToGoogleDrive">Google Drive にログを保存する</label>
             </div>
           </div>
         </div>

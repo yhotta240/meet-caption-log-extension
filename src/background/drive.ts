@@ -253,7 +253,7 @@ function errorMessage(error: unknown): string {
 async function reportError(error: unknown): Promise<void> {
   try {
     await logError(
-      "Google Drive 保存に失敗しました．未送信ログは再接続時に再送します",
+      "Google Drive 保存に失敗しました．保存先で Drive を選択すると未送信ログを再送します",
       "background",
       error,
     );

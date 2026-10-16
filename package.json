@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "test:drive": "node --test scripts/drive.test.mjs",
+    "test:drive": "node --test test/drive.test.mjs",
+    "test:destinations": "node --test test/save-destinations.test.mjs",
     "check": "biome check src",
     "check:fix": "biome check --write --unsafe src",
     "typecheck": "tsc --noEmit",

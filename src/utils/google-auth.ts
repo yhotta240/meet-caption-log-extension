@@ -27,15 +27,13 @@ export async function isGoogleDriveConnected(): Promise<boolean> {
 export async function connectGoogleDrive(): Promise<void> {
   await getGoogleAccessToken(true);
 
-  const options = await getOptions();
-  await setOptions({ ...options, saveToGoogleDrive: true });
   await chrome.storage.local.set({ [STATE_KEY]: { enabled: true } });
   await logInfo("Google Drive に接続しました", "popup");
 }
 
 export async function disconnectGoogleDrive(): Promise<void> {
   const options = await getOptions();
-  await setOptions({ ...options, saveToGoogleDrive: false });
+  await setOptions({ ...options, saveToLocal: true, saveToGoogleDrive: false });
 
   try {
     const token = await getGoogleAccessToken();
