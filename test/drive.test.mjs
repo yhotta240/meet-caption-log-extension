@@ -192,23 +192,24 @@ test("チェックがオフなら，再接続による再送も止めて未送�
   assert.equal(mock.pending().length, 1);
 });
 
-test("接続は認証を許可して保存チェックをオンにし，API への送信は行わない", async () => {
+test("接続は認証だけ行い，保存先の選択を変更しない", async () => {
   const mock = harness();
   mock.data.driveState.enabled = false;
-  mock.data.options.saveToGoogleDrive = false;
+  mock.data.options = { saveToLocal: true, saveToGoogleDrive: false };
   chrome.identity.getAuthToken = async (details) => {
     assert.equal(details.interactive, true);
     return { token: "test" };
   };
   await connectGoogleDrive();
   assert.equal(mock.data.driveState.enabled, true);
-  assert.equal(mock.data.options.saveToGoogleDrive, true);
+  assert.deepEqual(mock.data.options, { saveToLocal: true, saveToGoogleDrive: false });
   assert.equal(mock.calls.length, 0);
   assert.match(mock.data.app_logs[0].message, /接続しました/);
 });
 
 test("解除は許可を取り消してキャッシュを消し，保存済み・未送信ログを削除しない", async () => {
   const mock = harness();
+  mock.data.options.saveToLocal = false;
   mock.data["driveLog:pending"] = log;
   let cleared = false;
   chrome.identity.clearAllCachedAuthTokens = async () => {
@@ -221,6 +222,7 @@ test("解除は許可を取り消してキャッシュを消し，保存済み�
   assert.equal(mock.calls[0].init.body.get("token"), "test");
   assert.equal(cleared, true);
   assert.equal(mock.data.driveState.enabled, false);
+  assert.equal(mock.data.options.saveToLocal, true);
   assert.equal(mock.data.options.saveToGoogleDrive, false);
   assert.deepEqual(mock.data["driveLog:pending"], log);
   assert.match(mock.data.app_logs[0].message, /接続を解除しました/);
@@ -229,6 +231,7 @@ test("解除は許可を取り消してキャッシュを消し，保存済み�
 for (const status of [400, 503]) {
   test(`解除APIがHTTP ${status}でもローカルの接続状態とキャッシュを解除する`, async () => {
     const mock = harness(status);
+    mock.data.options.saveToLocal = false;
     mock.data["driveLog:pending"] = log;
     let cleared = false;
     chrome.identity.clearAllCachedAuthTokens = async () => {
@@ -237,6 +240,7 @@ for (const status of [400, 503]) {
     await assert.rejects(disconnectGoogleDrive(), new RegExp(String(status)));
     assert.equal(cleared, true);
     assert.equal(mock.data.driveState.enabled, false);
+    assert.equal(mock.data.options.saveToLocal, true);
     assert.equal(mock.data.options.saveToGoogleDrive, false);
     assert.deepEqual(mock.data["driveLog:pending"], log);
     assert.equal(mock.data.app_logs, undefined);
@@ -249,6 +253,7 @@ for (const error of [
 ]) {
   test(`解除APIの${error.name}でもローカルの接続状態とキャッシュを解除する`, async () => {
     const mock = harness();
+    mock.data.options.saveToLocal = false;
     mock.data["driveLog:pending"] = log;
     let cleared = false;
     chrome.identity.clearAllCachedAuthTokens = async () => {
@@ -260,6 +265,7 @@ for (const error of [
     await assert.rejects(disconnectGoogleDrive(), (actual) => actual === error);
     assert.equal(cleared, true);
     assert.equal(mock.data.driveState.enabled, false);
+    assert.equal(mock.data.options.saveToLocal, true);
     assert.equal(mock.data.options.saveToGoogleDrive, false);
     assert.deepEqual(mock.data["driveLog:pending"], log);
     assert.equal(mock.data.app_logs, undefined);
@@ -268,6 +274,7 @@ for (const error of [
 
 test("トークンを取得できなくてもローカルの接続状態とキャッシュを解除する", async () => {
   const mock = harness();
+  mock.data.options.saveToLocal = false;
   mock.data["driveLog:pending"] = log;
   let cleared = false;
   chrome.identity.clearAllCachedAuthTokens = async () => {
@@ -279,6 +286,7 @@ test("トークンを取得できなくてもローカルの接続状態とキ�
   await assert.rejects(disconnectGoogleDrive(), /認証切れ/);
   assert.equal(cleared, true);
   assert.equal(mock.data.driveState.enabled, false);
+  assert.equal(mock.data.options.saveToLocal, true);
   assert.equal(mock.data.options.saveToGoogleDrive, false);
   assert.deepEqual(mock.data["driveLog:pending"], log);
   assert.equal(mock.calls.length, 0);
